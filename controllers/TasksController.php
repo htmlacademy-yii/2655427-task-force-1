@@ -2,10 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\Category;
 use app\models\Task;
 use app\models\TaskFilter;
-use app\models\Category;
 use yii\web\Controller;
+use yii\web\NotFoundHttpException;
 
 class TasksController extends Controller
 {
@@ -32,7 +33,10 @@ class TasksController extends Controller
             $query->andWhere([
                 '>=',
                 'created_at',
-                date('Y-m-d H:i:s', strtotime("-{$filter->period} hours"))
+                date(
+                    'Y-m-d H:i:s',
+                    strtotime("-{$filter->period} hours")
+                )
             ]);
         }
 
@@ -44,6 +48,19 @@ class TasksController extends Controller
             'tasks' => $tasks,
             'filter' => $filter,
             'categories' => $categories,
+        ]);
+    }
+
+    public function actionView($id)
+    {
+        $task = Task::findOne($id);
+
+        if ($task === null) {
+            throw new NotFoundHttpException('Задание не найдено.');
+        }
+
+        return $this->render('view', [
+            'task' => $task,
         ]);
     }
 }

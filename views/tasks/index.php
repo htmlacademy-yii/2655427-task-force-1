@@ -1,7 +1,8 @@
 <?php
 
-use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
+use yii\widgets\ActiveForm;
 
 ?>
 
@@ -13,7 +14,7 @@ use yii\helpers\ArrayHelper;
 
             <div class="task-card">
                 <div class="header-task">
-                    <a href="#" class="link link--block link--big">
+                    <a href="<?= \yii\helpers\Url::to(['tasks/view', 'id' => $task->id]) ?>" class="link link--block link--big">
                         <?= $task->title ?>
                     </a>
 
@@ -39,7 +40,7 @@ use yii\helpers\ArrayHelper;
                         <?= $task->category->name ?>
                     </p>
 
-                    <a href="#" class="button button--black">
+                    <a href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>" class="button button--black">
                         Смотреть Задание
                     </a>
                 </div>
