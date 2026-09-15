@@ -1,7 +1,9 @@
 <?php
 
-use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\widgets\ActiveForm;
 
 ?>
 
@@ -13,33 +15,33 @@ use yii\helpers\ArrayHelper;
 
             <div class="task-card">
                 <div class="header-task">
-                    <a href="#" class="link link--block link--big">
-                        <?= $task->title ?>
+                    <a href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>" class="link link--block link--big">
+                        <?= Html::encode($task->title) ?>
                     </a>
 
                     <p class="price price--task">
-                        <?= $task->budget ?> ₽
+                        <?= Html::encode($task->budget) ?> ₽
                     </p>
                 </div>
 
                 <p class="info-text">
-                    <?= $task->created_at ?>
+                    <?= Html::encode($task->created_at) ?>
                 </p>
 
                 <p class="task-text">
-                    <?= $task->description ?>
+                    <?= Html::encode($task->description) ?>
                 </p>
 
                 <div class="footer-task">
                     <p class="info-text town-text">
-                        <?= $task->city->name ?>
+                        <?= Html::encode($task->city->name) ?>
                     </p>
 
                     <p class="info-text category-text">
-                        <?= $task->category->name ?>
+                        <?= Html::encode($task->category->name) ?>
                     </p>
 
-                    <a href="#" class="button button--black">
+                    <a href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>" class="button button--black">
                         Смотреть Задание
                     </a>
                 </div>
