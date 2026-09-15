@@ -1,5 +1,7 @@
 <?php
 
+use yii\helpers\Html;
+
 /** @var app\models\User $user */
 ?>
 
@@ -10,14 +12,14 @@
         <div class="user-card">
 
             <h1 class="head-main">
-                <?= $user->name ?>
+                <?= Html::encode($user->name) ?>
             </h1>
 
             <?php if ($user->avatar_path): ?>
 
                 <img
-                    src="<?= $user->avatar_path ?>"
-                    alt="<?= $user->name ?>"
+                    src="<?= Html::encode($user->avatar_path) ?>"
+                    alt="<?= Html::encode($user->name) ?>"
                 >
 
             <?php endif; ?>
@@ -25,7 +27,7 @@
             <?php if ($user->city): ?>
 
                 <p class="info-text">
-                    Город: <?= $user->city->name ?>
+                    Город: <?= Html::encode($user->city->name) ?>
                 </p>
 
             <?php endif; ?>

@@ -1,5 +1,6 @@
 <?php
 
+use yii\helpers\Html;
 use yii\helpers\Url;
 
 /** @var app\models\Task $task */
@@ -15,7 +16,7 @@ use yii\helpers\Url;
 
                 <div>
                     <h1 class="head-main">
-                        <?= $task->title ?>
+                        <?= Html::encode($task->title) ?>
                     </h1>
 
                     <p class="info-text">
@@ -23,23 +24,23 @@ use yii\helpers\Url;
                             'tasks/index',
                             'TaskFilter[categories][]' => $task->category_id
                         ]) ?>">
-                            <?= $task->category->name ?>
+                            <?= Html::encode($task->category->name) ?>
                         </a>
 
                         ·
 
-                        <?= $task->created_at ?>
+                        <?= Html::encode($task->created_at) ?>
                     </p>
                 </div>
 
                 <p class="price price--task">
-                    <?= $task->budget ?> ₽
+                    <?= Html::encode($task->budget) ?> ₽
                 </p>
 
             </div>
 
             <p class="task-text">
-                <?= $task->description ?>
+                <?= Html::encode($task->description) ?>
             </p>
 
         </div>
@@ -59,7 +60,7 @@ use yii\helpers\Url;
                     'user/view',
                     'id' => $task->author_id
                 ]) ?>">
-                    <?= $task->author->name ?>
+                    <?= Html::encode($task->author->name) ?>
                 </a>
             </p>
 
