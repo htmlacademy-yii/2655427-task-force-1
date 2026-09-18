@@ -12,21 +12,61 @@ use yii\base\Security;
  * LoginForm is the model behind the login form.
  *
  * @property-read User|null $user
- *
+ */
 class LoginForm extends Model
 {
+    /**
+     * User's username.
+     *
+     * @var string
+     */
     public string $username = '';
+
+    /**
+     * User's password.
+     *
+     * @var string
+     */
     public string $password = '';
+
+    /**
+     * Whether to remember the user.
+     *
+     * @var bool
+     */
     public bool $rememberMe = true;
+
+    /**
+     * Cached user model.
+     *
+     * @var User|null
+     */
     private User|null $_user = null;
+
+    /**
+     * Whether the user has already been loaded.
+     *
+     * @var bool
+     */
     private bool $_userLoaded = false;
-    public function __construct(private readonly Security $security, $config = [])
-    {
+
+    /**
+     * LoginForm constructor.
+     *
+     * @param Security $security Security component.
+     * @param array $config Model configuration.
+     */
+    public function __construct(
+        private readonly Security $security,
+        $config = []
+    ) {
         parent::__construct($config);
     }
 
     /**
-     * @return array the validation rules.
+     * Returns the validation rules.
+     *
+     * @return array
      */
     public function rules(): array
     {
@@ -44,8 +84,10 @@ class LoginForm extends Model
      * Validates the password.
      * This method serves as the inline validation for password.
      *
-     * @param string $attribute the attribute currently being validated
-     * @param array $params the additional name-value pairs given in the rule
+     * @param string $attribute The attribute currently being validated.
+     * @param array|null $params The additional name-value pairs given in the rule.
+     *
+     * @return void
      */
     public function validatePassword(string $attribute, array|null $params): void
     {
@@ -60,19 +102,23 @@ class LoginForm extends Model
 
     /**
      * Logs in a user using the provided username and password.
-     * @return bool whether the user is logged in successfully
+     *
+     * @return bool Whether the user is logged in successfully.
      */
     public function login(): bool
     {
         if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+            return Yii::$app->user->login(
+                $this->getUser(),
+                $this->rememberMe ? 3600 * 24 * 30 : 0
+            );
         }
 
         return false;
     }
 
     /**
-     * Finds user by [[username]]
+     * Finds user by [[username]].
      *
      * @return User|null
      */

@@ -7,7 +7,7 @@ namespace TaskForce\Import;
 use RuntimeException;
 
 /**
- * Выполняет импорт данных из CSV-файла в SQL-файл.
+ * Imports data from a CSV file into an SQL file.
  */
 class ImportRunner
 {
@@ -21,11 +21,11 @@ class ImportRunner
     }
 
     /**
-     * Конвертирует CSV-файл в SQL-файл.
+     * Converts a CSV file into an SQL file.
      *
-     * @param string $csvFile Путь к CSV-файлу.
-     * @param string $table Имя таблицы базы данных.
-     * @param string $outputFile Путь к SQL-файлу.
+     * @param string $csvFile Path to the CSV file.
+     * @param string $table Database table name.
+     * @param string $outputFile Path to the SQL file.
      */
     public function run(
         string $csvFile,

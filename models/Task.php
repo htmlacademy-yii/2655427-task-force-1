@@ -33,12 +33,10 @@ use Yii;
  */
 class Task extends \yii\db\ActiveRecord
 {
-
-
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'task';
     }
@@ -46,7 +44,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['executor_id', 'city_id', 'latitude', 'longitude', 'budget', 'deadline'], 'default', 'value' => null],
@@ -67,7 +65,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -91,7 +89,7 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getAuthor()
+    public function getAuthor(): \yii\db\ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'author_id']);
     }
@@ -101,7 +99,7 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getCategory()
+    public function getCategory(): \yii\db\ActiveQuery
     {
         return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
@@ -111,7 +109,7 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getCity()
+    public function getCity(): \yii\db\ActiveQuery
     {
         return $this->hasOne(City::class, ['id' => 'city_id']);
     }
@@ -121,7 +119,7 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getExecutor()
+    public function getExecutor(): \yii\db\ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'executor_id']);
     }
@@ -131,7 +129,7 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getFeedback()
+    public function getFeedback(): \yii\db\ActiveQuery
     {
         return $this->hasOne(Feedback::class, ['task_id' => 'id']);
     }
@@ -141,7 +139,7 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getFiles()
+    public function getFiles(): \yii\db\ActiveQuery
     {
         return $this->hasMany(File::class, ['task_id' => 'id']);
     }
@@ -151,7 +149,7 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getResponses()
+    public function getResponses(): \yii\db\ActiveQuery
     {
         return $this->hasMany(Response::class, ['task_id' => 'id']);
     }
@@ -161,7 +159,7 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getStatus()
+    public function getStatus(): \yii\db\ActiveQuery
     {
         return $this->hasOne(Status::class, ['id' => 'status_id']);
     }
@@ -171,9 +169,9 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getUsers()
+    public function getUsers(): \yii\db\ActiveQuery
     {
-        return $this->hasMany(User::class, ['id' => 'user_id'])->viaTable('response', ['task_id' => 'id']);
+        return $this->hasMany(User::class, ['id' => 'user_id'])
+            ->viaTable('response', ['task_id' => 'id']);
     }
-
 }

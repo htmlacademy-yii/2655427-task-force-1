@@ -16,12 +16,10 @@ use Yii;
  */
 class File extends \yii\db\ActiveRecord
 {
-
-
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'file';
     }
@@ -29,7 +27,7 @@ class File extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['task_id', 'file_path'], 'required'],
@@ -43,7 +41,7 @@ class File extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -58,9 +56,8 @@ class File extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getTask()
+    public function getTask(): \yii\db\ActiveQuery
     {
         return $this->hasOne(Task::class, ['id' => 'task_id']);
     }
-
 }

@@ -8,11 +8,11 @@ use TaskForce\Logic\Enums\TaskAction;
 use TaskForce\Logic\Enums\TaskStatus;
 
 /**
- * Представляет задание.
+ * Represents a task.
  *
- * Хранит информацию о заказчике, исполнителе и текущем статусе задания.
- * Для определения доступных действий и изменения статуса использует
- * объект TaskStateMachine.
+ * Stores information about the customer, executor, and current task status.
+ * Uses the TaskStateMachine object to determine available actions and change
+ * the task status.
  */
 class Task
 {
@@ -21,11 +21,11 @@ class Task
     private TaskStatus $status;
 
     /**
-     * Создаёт объект задания.
+     * Creates a task object.
      *
-     * @param int $customerId ID заказчика задания.
-     * @param int|null $executorId ID исполнителя задания или null, если исполнитель ещё не назначен.
-     * @param TaskStatus $status Текущий статус задания.
+     * @param int $customerId ID of the task customer.
+     * @param int|null $executorId ID of the task executor, or null if no executor is assigned yet.
+     * @param TaskStatus $status Current task status.
      */
     public function __construct(int $customerId, ?int $executorId = null, TaskStatus $status)
     {
@@ -35,28 +35,32 @@ class Task
     }
 
     /**
-     * Возвращает список действий, доступных текущему пользователю.
+     * Returns the actions available to the current user.
      *
-     * Делегирует проверку доступных действий объекту TaskStateMachine.
+     * Delegates the check for available actions to the TaskStateMachine object.
      *
-     * @param TaskStateMachine $machine Объект конечного автомата задания.
-     * @param int $currentUserId ID текущего пользователя.
+     * @param TaskStateMachine $machine Task state machine object.
+     * @param int $currentUserId ID of the current user.
      *
-     * @return array Список доступных действий.
+     * @return array List of available actions.
      */
     public function getAvailableActions(TaskStateMachine $machine, int $currentUserId): array
     {
-        return $machine->getAllowedActions($this->status, $this->customerId, $currentUserId, $this->executorId);
-
+        return $machine->getAllowedActions(
+            $this->status,
+            $this->customerId,
+            $currentUserId,
+            $this->executorId
+        );
     }
 
     /**
-     * Выполняет действие над заданием и изменяет его статус.
+     * Applies an action to the task and changes its status.
      *
-     * Новый статус определяется объектом TaskStateMachine.
+     * The new status is determined by the TaskStateMachine object.
      *
-     * @param TaskStateMachine $machine Объект конечного автомата задания.
-     * @param TaskAction $action Выполняемое действие.
+     * @param TaskStateMachine $machine Task state machine object.
+     * @param TaskAction $action Action to perform.
      */
     public function apply(TaskStateMachine $machine, TaskAction $action): void
     {

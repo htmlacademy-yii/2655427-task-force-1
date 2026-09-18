@@ -15,12 +15,10 @@ use Yii;
  */
 class City extends \yii\db\ActiveRecord
 {
-
-
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'city';
     }
@@ -28,7 +26,7 @@ class City extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['name'], 'required'],
@@ -40,7 +38,7 @@ class City extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -53,7 +51,7 @@ class City extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getTasks()
+    public function getTasks(): \yii\db\ActiveQuery
     {
         return $this->hasMany(Task::class, ['city_id' => 'id']);
     }
@@ -63,9 +61,8 @@ class City extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getUsers()
+    public function getUsers(): \yii\db\ActiveQuery
     {
         return $this->hasMany(User::class, ['city_id' => 'id']);
     }
-
 }

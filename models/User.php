@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "user".
  *
@@ -34,11 +32,14 @@ use Yii;
  */
 class User extends \yii\db\ActiveRecord
 {
-
     /**
-     * ENUM field values
+     * Customer role.
      */
     const USER_ROLE_CUSTOMER = 'customer';
+
+    /**
+     * Executor role.
+     */
     const USER_ROLE_EXECUTOR = 'executor';
 
     /**
@@ -102,7 +103,8 @@ class User extends \yii\db\ActiveRecord
      */
     public function getCategories()
     {
-        return $this->hasMany(Category::class, ['id' => 'category_id'])->viaTable('user_category', ['user_id' => 'id']);
+        return $this->hasMany(Category::class, ['id' => 'category_id'])
+            ->viaTable('user_category', ['user_id' => 'id']);
     }
 
     /**
@@ -172,7 +174,8 @@ class User extends \yii\db\ActiveRecord
      */
     public function getTasks1()
     {
-        return $this->hasMany(Task::class, ['id' => 'task_id'])->viaTable('response', ['user_id' => 'id']);
+        return $this->hasMany(Task::class, ['id' => 'task_id'])
+            ->viaTable('response', ['user_id' => 'id']);
     }
 
     /**
@@ -185,9 +188,9 @@ class User extends \yii\db\ActiveRecord
         return $this->hasMany(UserCategory::class, ['user_id' => 'id']);
     }
 
-
     /**
-     * column user_role ENUM value labels
+     * Returns available user roles and their labels.
+     *
      * @return string[]
      */
     public static function optsUserRole()
@@ -199,6 +202,8 @@ class User extends \yii\db\ActiveRecord
     }
 
     /**
+     * Returns the current user role label.
+     *
      * @return string
      */
     public function displayUserRole()
@@ -207,6 +212,8 @@ class User extends \yii\db\ActiveRecord
     }
 
     /**
+     * Checks whether the user has the customer role.
+     *
      * @return bool
      */
     public function isUserRoleCustomer()
@@ -214,21 +221,23 @@ class User extends \yii\db\ActiveRecord
         return $this->user_role === self::USER_ROLE_CUSTOMER;
     }
 
-    public function setUserRoleToCustomer()
+    /**
+     * Sets the user role.
+     *
+     * @param string $role User role.
+     */
+    public function setRole(string $role)
     {
-        $this->user_role = self::USER_ROLE_CUSTOMER;
+        $this->user_role = $role;
     }
 
     /**
+     * Checks whether the user has the executor role.
+     *
      * @return bool
      */
     public function isUserRoleExecutor()
     {
         return $this->user_role === self::USER_ROLE_EXECUTOR;
-    }
-
-    public function setUserRoleToExecutor()
-    {
-        $this->user_role = self::USER_ROLE_EXECUTOR;
     }
 }

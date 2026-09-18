@@ -6,18 +6,36 @@ namespace app\tests\Functional;
 
 use app\tests\Support\FunctionalTester;
 
+/**
+ * Tests the contact form.
+ */
 final class ContactFormCest
 {
+    /**
+     * Opens the Contact page before each test.
+     *
+     * @param FunctionalTester $I Functional tester.
+     */
     public function _before(FunctionalTester $I)
     {
         $I->amOnRoute('site/contact');
     }
 
+    /**
+     * Checks that the Contact page opens correctly.
+     *
+     * @param FunctionalTester $I Functional tester.
+     */
     public function openContactPage(FunctionalTester $I)
     {
         $I->see('Contact', 'h1');
     }
 
+    /**
+     * Checks validation errors when the form is submitted empty.
+     *
+     * @param FunctionalTester $I Functional tester.
+     */
     public function submitEmptyForm(FunctionalTester $I)
     {
         $I->submitForm('#contact-form', []);
@@ -30,6 +48,11 @@ final class ContactFormCest
         $I->see('The verification code is incorrect');
     }
 
+    /**
+     * Checks validation when an invalid email address is submitted.
+     *
+     * @param FunctionalTester $I Functional tester.
+     */
     public function submitFormWithIncorrectEmail(FunctionalTester $I)
     {
         $I->submitForm('#contact-form', [
@@ -47,6 +70,11 @@ final class ContactFormCest
         $I->dontSee('The verification code is incorrect', '.help-inline');
     }
 
+    /**
+     * Checks that the contact form can be submitted successfully.
+     *
+     * @param FunctionalTester $I Functional tester.
+     */
     public function submitFormSuccessfully(FunctionalTester $I)
     {
         $I->submitForm('#contact-form', [

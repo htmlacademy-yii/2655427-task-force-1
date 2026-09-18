@@ -7,9 +7,8 @@ namespace TaskForce\Logic\Exceptions;
 use Exception;
 
 /**
- * Исключение, возникающее при некорректной работе с заданием.
+ * Exception thrown when an invalid operation is performed on a task.
  */
 class TaskException extends Exception
 {
-
 }

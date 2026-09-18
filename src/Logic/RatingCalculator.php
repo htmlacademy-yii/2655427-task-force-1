@@ -3,13 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Рейтинг пользователя
+ * Calculates the user's rating.
  *
- * считается по формуле:
- * сумма всех оценок из отзывов / (кол-во отзывов + счетчик проваленных заданий)
- *
+ * The rating is calculated using the following formula:
+ * the sum of all review scores / (number of reviews + failed tasks counter).
  */
 class RatingCalculator
 {
-
 }

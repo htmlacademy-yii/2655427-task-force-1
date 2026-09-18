@@ -14,12 +14,10 @@ use Yii;
  */
 class Status extends \yii\db\ActiveRecord
 {
-
-
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'status';
     }
@@ -27,7 +25,7 @@ class Status extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['name'], 'required'],
@@ -39,7 +37,7 @@ class Status extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -52,9 +50,8 @@ class Status extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getTasks()
+    public function getTasks(): \yii\db\ActiveQuery
     {
         return $this->hasMany(Task::class, ['status_id' => 'id']);
     }
-
 }

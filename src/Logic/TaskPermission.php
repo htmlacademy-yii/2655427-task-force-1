@@ -3,15 +3,14 @@
 declare(strict_types=1);
 
 /**
- * Определяет, может ли пользователь выполнить действие
+ * Determines whether a user can perform a task action.
  *
- * может ли исполнитель откликнуться;
- * может ли заказчик отменить;
- * может ли заказчик завершить;
- * может ли исполнитель отказаться.
- *
+ * Checks:
+ * - whether an executor can respond;
+ * - whether a customer can cancel the task;
+ * - whether a customer can complete the task;
+ * - whether an executor can refuse the task.
  */
 class TaskPermission
 {
-
 }

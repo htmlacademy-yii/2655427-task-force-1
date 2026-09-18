@@ -5,6 +5,10 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
+/** @var app\models\Task[] $tasks */
+/** @var app\models\Category[] $categories */
+/** @var app\models\TaskFilter $filter */
+
 ?>
 
 <main class="main-content container">

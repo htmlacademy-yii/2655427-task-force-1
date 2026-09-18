@@ -3,14 +3,12 @@
 declare(strict_types=1);
 
 /**
- * Работа с локацией
+ * Handles location-related operations:
  *
- * корректность координат;
- * принадлежность городу;
- * наличие географической привязки.
- *
+ * - coordinate validity;
+ * - city membership;
+ * - availability of geographical data.
  */
 class Location
 {
-
 }
