@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
-use Yii;
 use app\models\ContactForm;
 use app\models\LoginForm;
+use Yii;
+use yii\base\Security;
 use yii\captcha\CaptchaAction;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\base\Security;
 use yii\mail\MailerInterface;
 use yii\web\Controller;
 use yii\web\ErrorAction;
@@ -32,7 +32,9 @@ class SiteController extends Controller
     }
 
     /**
-     * {@inheritdoc}
+     * Returns controller behaviors.
+     *
+     * @return array
      */
     public function behaviors(): array
     {
@@ -58,7 +60,9 @@ class SiteController extends Controller
     }
 
     /**
-     * {@inheritdoc}
+     * Returns external actions.
+     *
+     * @return array
      */
     public function actions(): array
     {
@@ -75,21 +79,27 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays homepage.
+     * Displays the landing page.
      *
-     * @return string
+     * @return string|Response
      */
-    public function actionIndex(): string
+    public function actionIndex(): string|Response
     {
-        return $this->render('index');
+        if (!Yii::$app->user->isGuest) {
+            return $this->redirect(['tasks/index']);
+        }
+
+        $this->layout = 'landing';
+
+        return $this->render('landing');
     }
 
     /**
-     * Login action.
+     * Logs a user in.
      *
-     * @return Response|string
+     * @return string|Response|array
      */
-    public function actionLogin(): Response|string
+    public function actionLogin(): string|Response|array
     {
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
@@ -97,17 +107,34 @@ class SiteController extends Controller
 
         $model = new LoginForm($this->security);
 
+        if ($this->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+
+            if ($model->load($this->request->post(), 'LoginForm') && $model->login()) {
+                return [
+                    'success' => true,
+                ];
+            }
+
+            return [
+                'success' => false,
+                'errors' => $model->getErrors(),
+            ];
+        }
+
         if ($model->load($this->request->post()) && $model->login()) {
             return $this->goBack();
         }
 
         $model->password = '';
 
-        return $this->render('login', ['model' => $model]);
+        return $this->render('login', [
+            'model' => $model,
+        ]);
     }
 
     /**
-     * Logout action.
+     * Logs the current user out.
      *
      * @return Response
      */
@@ -119,35 +146,38 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays contact page.
+     * Displays the contact page.
      *
-     * @return Response|string
+     * @return string|Response
      */
-    public function actionContact(): Response|string
+    public function actionContact(): string|Response
     {
         $model = new ContactForm();
 
-        $contact = $model->load($this->request->post()) && $model->contact(
-            $this->mailer,
-            Yii::$app->params['adminEmail'],
-            Yii::$app->params['senderEmail'],
-            Yii::$app->params['senderName'],
-        );
-
-        if ($contact) {
-            Yii::$app->session->setFlash(
-                'success',
-                'Thank you for contacting us. We will respond to you as soon as possible.',
-            );
+        if ($model->load($this->request->post()) && $model->validate()) {
+            if ($this->mailer->compose()
+                ->setTo('admin@example.com')
+                ->setFrom([$model->email => $model->name])
+                ->setSubject($model->subject)
+                ->setTextBody($model->body)
+                ->send()
+            ) {
+                Yii::$app->session->setFlash(
+                    'contactFormSubmitted',
+                    'Thank you for contacting us. We will respond to you as soon as possible.'
+                );
+            }
 
             return $this->refresh();
         }
 
-        return $this->render('contact', ['model' => $model]);
+        return $this->render('contact', [
+            'model' => $model,
+        ]);
     }
 
     /**
-     * Displays about page.
+     * Displays the about page.
      *
      * @return string
      */

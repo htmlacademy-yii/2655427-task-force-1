@@ -2,6 +2,9 @@
 
 namespace app\models;
 
+use yii\db\ActiveQuery;
+use yii\web\IdentityInterface;
+
 /**
  * This is the model class for table "user".
  *
@@ -30,7 +33,7 @@ namespace app\models;
  * @property Task[] $tasks1
  * @property UserCategory[] $userCategories
  */
-class User extends \yii\db\ActiveRecord
+class User extends \yii\db\ActiveRecord implements IdentityInterface
 {
     /**
      * Customer role.
@@ -97,9 +100,78 @@ class User extends \yii\db\ActiveRecord
     }
 
     /**
+     * Finds an identity by the specified ID.
+     *
+     * @param int|string $id User ID.
+     *
+     * @return static|null User instance or null if the user was not found.
+     */
+    public static function findIdentity($id)
+    {
+        return static::findOne(['id' => $id]);
+    }
+
+    /**
+     * Finds a user by email address.
+     *
+     * @param string $email User email address.
+     *
+     * @return static|null User instance or null if the user was not found.
+     */
+    public static function findByEmail(string $email)
+    {
+        return static::findOne(['email' => $email]);
+    }
+
+    /**
+     * Returns the unique identifier of the user.
+     *
+     * @return int|string User ID.
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Returns the authentication key.
+     *
+     * @return string Authentication key.
+     */
+    public function getAuthKey()
+    {
+        return (string) $this->id;
+    }
+
+    /**
+     * Validates the authentication key.
+     *
+     * @param string $authKey Authentication key.
+     *
+     * @return bool Whether the authentication key is valid.
+     */
+    public function validateAuthKey($authKey)
+    {
+        return $this->getAuthKey() === $authKey;
+    }
+
+    /**
+     * Finds an identity by the specified access token.
+     *
+     * @param string $token Access token.
+     * @param string|null $type Token type.
+     *
+     * @return static|null User instance or null if the user was not found.
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        return null;
+    }
+
+    /**
      * Gets query for [[Categories]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCategories()
     {
@@ -110,7 +182,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[City]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCity()
     {
@@ -120,7 +192,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Feedbacks]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getFeedbacks()
     {
@@ -130,7 +202,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Feedbacks0]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getFeedbacks0()
     {
@@ -140,7 +212,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Responses]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getResponses()
     {
@@ -150,7 +222,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Tasks]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getTasks()
     {
@@ -160,7 +232,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Tasks0]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getTasks0()
     {
@@ -170,7 +242,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Tasks1]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getTasks1()
     {
@@ -181,7 +253,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[UserCategories]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getUserCategories()
     {
