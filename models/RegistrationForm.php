@@ -4,16 +4,59 @@ namespace app\models;
 
 use yii\base\Model;
 
+/**
+ * RegistrationForm is the model behind the user registration form.
+ */
 class RegistrationForm extends Model
 {
+    /**
+     * User's name.
+     *
+     * @var string
+     */
     public $name;
+
+    /**
+     * User's email address.
+     *
+     * @var string
+     */
     public $email;
+
+    /**
+     * User's city ID.
+     *
+     * @var int
+     */
     public $city_id;
+
+    /**
+     * User's password.
+     *
+     * @var string
+     */
     public $password;
+
+    /**
+     * Password confirmation.
+     *
+     * @var string
+     */
     public $password_repeat;
+
+    /**
+     * Whether the user wants to respond to tasks.
+     *
+     * @var bool
+     */
     public $is_executor;
 
-    public function rules()
+    /**
+     * Returns the validation rules.
+     *
+     * @return array
+     */
+    public function rules(): array
     {
         return [
             [['name', 'email', 'city_id', 'password', 'password_repeat'], 'required', 'message' => 'Заполните это поле.'],
@@ -33,7 +76,12 @@ class RegistrationForm extends Model
         ];
     }
 
-    public function attributeLabels()
+    /**
+     * Returns customized attribute labels.
+     *
+     * @return array
+     */
+    public function attributeLabels(): array
     {
         return [
             'name' => 'Ваше имя',

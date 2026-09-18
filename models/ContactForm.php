@@ -12,13 +12,45 @@ use yii\mail\MailerInterface;
  */
 class ContactForm extends Model
 {
-    public string $name = '';
-    public string $email = '';
-    public string $subject = '';
-    public string $body = '';
-    public string $verifyCode = '';
     /**
-     * @return array the validation rules.
+     * User's name.
+     *
+     * @var string
+     */
+    public string $name = '';
+
+    /**
+     * User's email address.
+     *
+     * @var string
+     */
+    public string $email = '';
+
+    /**
+     * Email subject.
+     *
+     * @var string
+     */
+    public string $subject = '';
+
+    /**
+     * Email body.
+     *
+     * @var string
+     */
+    public string $body = '';
+
+    /**
+     * CAPTCHA verification code.
+     *
+     * @var string
+     */
+    public string $verifyCode = '';
+
+    /**
+     * Returns the validation rules.
+     *
+     * @return array
      */
     public function rules(): array
     {
@@ -33,7 +65,9 @@ class ContactForm extends Model
     }
 
     /**
-     * @return array customized attribute labels
+     * Returns customized attribute labels.
+     *
+     * @return array
      */
     public function attributeLabels(): array
     {
@@ -43,17 +77,22 @@ class ContactForm extends Model
     }
 
     /**
-     * Sends an email to the specified email address using the information collected by this model.
+     * Sends an email to the specified email address using the information
+     * collected by this model.
      *
-     * @param MailerInterface $mailer the mailer component.
-     * @param string $email the target email address.
-     * @param string $senderEmail the sender email address.
-     * @param string $senderName the sender name.
+     * @param MailerInterface $mailer The mailer component.
+     * @param string $email The target email address.
+     * @param string $senderEmail The sender email address.
+     * @param string $senderName The sender name.
      *
-     * @return bool whether the model passes validation.
+     * @return bool Whether the model passes validation and the email is sent.
      */
-    public function contact(MailerInterface $mailer, string $email, string $senderEmail, string $senderName): bool
-    {
+    public function contact(
+        MailerInterface $mailer,
+        string $email,
+        string $senderEmail,
+        string $senderName
+    ): bool {
         if ($this->validate()) {
             $mailer->compose()
                 ->setTo($email)

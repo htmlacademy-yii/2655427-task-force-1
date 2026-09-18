@@ -9,21 +9,21 @@ use TaskForce\Logic\Enums\TaskAction;
 use TaskForce\Logic\Exceptions\TaskException;
 
 /**
- * Управляет состояниями задания.
+ * Manages task states.
  *
- * Определяет:
- * - действия, доступные для текущего статуса;
- * - действия, разрешённые конкретному пользователю;
- * - переходы задания между статусами.
+ * Determines:
+ * - actions available for the current status;
+ * - actions allowed for a specific user;
+ * - task transitions between statuses.
  */
 class TaskStateMachine
 {
     /**
-     * Возвращает список действий, доступных для указанного статуса.
+     * Returns the list of actions available for the specified status.
      *
-     * @param TaskStatus $status Текущий статус задания.
+     * @param TaskStatus $status Current task status.
      *
-     * @return array Список доступных действий.
+     * @return array List of available actions.
      */
     public function getAvailableActions(TaskStatus $status): array
     {
@@ -31,17 +31,17 @@ class TaskStateMachine
     }
 
     /**
-     * Возвращает список действий, которые доступны текущему пользователю.
+     * Returns the list of actions available to the current user.
      *
-     * Выполняет проверку прав пользователя для каждого действия,
-     * доступного в текущем статусе задания.
+     * Checks the user's permissions for each action
+     * available in the current task status.
      *
-     * @param TaskStatus $status Текущий статус задания.
-     * @param int $customerId ID заказчика.
-     * @param int|null $currentUserId ID текущего пользователя.
-     * @param int|null $executorId ID исполнителя задания.
+     * @param TaskStatus $status Current task status.
+     * @param int $customerId Customer ID.
+     * @param int|null $currentUserId Current user ID.
+     * @param int|null $executorId Task executor ID.
      *
-     * @return array Список разрешённых действий.
+     * @return array List of allowed actions.
      */
     public function getAllowedActions(TaskStatus $status, int $customerId, ?int $currentUserId, ?int $executorId): array
     {
@@ -50,17 +50,17 @@ class TaskStateMachine
     }
 
     /**
-     * Выполняет переход задания в новый статус.
+     * Transitions the task to a new status.
      *
-     * Проверяет, что указанное действие допустимо для текущего статуса,
-     * и возвращает новый статус задания.
+     * Checks that the specified action is allowed for the current status
+     * and returns the new task status.
      *
-     * @param TaskStatus $current Текущий статус задания.
-     * @param TaskAction $action Выполняемое действие.
+     * @param TaskStatus $current Current task status.
+     * @param TaskAction $action Action to perform.
      *
-     * @return TaskStatus Новый статус задания.
+     * @return TaskStatus New task status.
      *
-     * @throws TaskException Если действие недоступно для текущего статуса.
+     * @throws TaskException If the action is not available for the current status.
      */
     public function transition(TaskStatus $current, TaskAction $action): TaskStatus
     {

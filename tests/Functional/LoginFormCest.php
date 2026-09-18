@@ -6,19 +6,36 @@ namespace app\tests\Functional;
 
 use app\tests\Support\FunctionalTester;
 
+/**
+ * Tests the login form.
+ */
 final class LoginFormCest
 {
+    /**
+     * Opens the login page before each test.
+     *
+     * @param FunctionalTester $I Functional tester.
+     */
     public function _before(FunctionalTester $I)
     {
         $I->amOnRoute('site/login');
     }
 
+    /**
+     * Checks that the login page opens correctly.
+     *
+     * @param FunctionalTester $I Functional tester.
+     */
     public function openLoginPage(FunctionalTester $I)
     {
         $I->see('Login', 'h1');
     }
 
-    // demonstrates `amLoggedInAs` method
+    /**
+     * Demonstrates the amLoggedInAs method using a user ID.
+     *
+     * @param FunctionalTester $I Functional tester.
+     */
     public function internalLoginById(FunctionalTester $I)
     {
         $I->amLoggedInAs(100);
@@ -26,7 +43,11 @@ final class LoginFormCest
         $I->see('Logout (admin)');
     }
 
-    // demonstrates `amLoggedInAs` method
+    /**
+     * Demonstrates the amLoggedInAs method using a user instance.
+     *
+     * @param FunctionalTester $I Functional tester.
+     */
     public function internalLoginByInstance(FunctionalTester $I)
     {
         $I->amLoggedInAs(\app\models\User::findByUsername('admin'));
@@ -34,6 +55,11 @@ final class LoginFormCest
         $I->see('Logout (admin)');
     }
 
+    /**
+     * Checks validation errors when login credentials are empty.
+     *
+     * @param FunctionalTester $I Functional tester.
+     */
     public function loginWithEmptyCredentials(FunctionalTester $I)
     {
         $I->submitForm('#login-form', []);
@@ -42,6 +68,11 @@ final class LoginFormCest
         $I->see('Password cannot be blank.');
     }
 
+    /**
+     * Checks validation when incorrect login credentials are submitted.
+     *
+     * @param FunctionalTester $I Functional tester.
+     */
     public function loginWithWrongCredentials(FunctionalTester $I)
     {
         $I->submitForm('#login-form', [
@@ -52,6 +83,11 @@ final class LoginFormCest
         $I->see('Incorrect username or password.');
     }
 
+    /**
+     * Checks that a user can log in successfully with valid credentials.
+     *
+     * @param FunctionalTester $I Functional tester.
+     */
     public function loginSuccessfully(FunctionalTester $I)
     {
         $I->submitForm('#login-form', [

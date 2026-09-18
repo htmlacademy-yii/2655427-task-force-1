@@ -3,16 +3,15 @@
 declare(strict_types=1);
 
 /**
- * Подсчёт статистики пользователя
+ * Calculates user statistics.
  *
- * выполнено заданий;
- * активные задания;
- * просроченные задания;
- * место в рейтинге;
- * статус “Открыт для новых заказов”/“Занят”.
- *
+ * Includes:
+ * - completed tasks;
+ * - active tasks;
+ * - overdue tasks;
+ * - ranking position;
+ * - status: "Available for new tasks" / "Busy".
  */
 class UserStatistic
 {
-
 }

@@ -3,15 +3,13 @@
 declare(strict_types=1);
 
 /**
- * Работа с откликами
+ * Handles task responses:
  *
- * определение возможности оставить отклик;
- * изменение статуса отклика (новый, принят, отклонён);
- * проверка, что пользователь ещё не откликался;
- * выбор отклика исполнителем.
- *
+ * - determines whether a user can submit a response;
+ * - changes the response status (new, accepted, rejected);
+ * - checks whether the user has already submitted a response;
+ * - selects a response as the task executor.
  */
 class Response
 {
-
 }

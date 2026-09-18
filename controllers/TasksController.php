@@ -8,9 +8,17 @@ use app\models\TaskFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
+/**
+ * Handles requests for tasks.
+ */
 class TasksController extends Controller
 {
-    public function actionIndex()
+    /**
+     * Displays the task list.
+     *
+     * @return string
+     */
+    public function actionIndex(): string
     {
         $filter = new TaskFilter();
         $categories = Category::find()->all();
@@ -51,7 +59,16 @@ class TasksController extends Controller
         ]);
     }
 
-    public function actionView($id)
+    /**
+     * Displays a task by its ID.
+     *
+     * @param int $id Task ID.
+     *
+     * @return string
+     *
+     * @throws NotFoundHttpException If the task is not found.
+     */
+    public function actionView($id): string
     {
         $task = Task::findOne($id);
 

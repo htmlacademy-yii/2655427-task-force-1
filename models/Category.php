@@ -16,12 +16,10 @@ use Yii;
  */
 class Category extends \yii\db\ActiveRecord
 {
-
-
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'category';
     }
@@ -29,7 +27,7 @@ class Category extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['name'], 'required'],
@@ -41,7 +39,7 @@ class Category extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -54,7 +52,7 @@ class Category extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getTasks()
+    public function getTasks(): \yii\db\ActiveQuery
     {
         return $this->hasMany(Task::class, ['category_id' => 'id']);
     }
@@ -64,7 +62,7 @@ class Category extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getUserCategories()
+    public function getUserCategories(): \yii\db\ActiveQuery
     {
         return $this->hasMany(UserCategory::class, ['category_id' => 'id']);
     }
@@ -74,9 +72,9 @@ class Category extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getUsers()
+    public function getUsers(): \yii\db\ActiveQuery
     {
-        return $this->hasMany(User::class, ['id' => 'user_id'])->viaTable('user_category', ['category_id' => 'id']);
+        return $this->hasMany(User::class, ['id' => 'user_id'])
+            ->viaTable('user_category', ['category_id' => 'id']);
     }
-
 }

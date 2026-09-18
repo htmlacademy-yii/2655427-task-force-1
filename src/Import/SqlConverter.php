@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace TaskForce\Import;
 
 /**
- * Форматирует данные CSV в SQL-запрос INSERT.
+ * Formats CSV data into an SQL INSERT query.
  */
 class SqlConverter
 {
     /**
-     * Форматирует одну запись в SQL-значения.
+     * Formats a single row into SQL values.
      *
-     * @param array $row Запись из CSV.
+     * @param array $row A row from the CSV file.
      *
-     * @return string Строка SQL со значениями.
+     * @return string SQL values string.
      */
     public function convertRow(array $row): string
     {

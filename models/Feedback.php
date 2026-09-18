@@ -21,12 +21,10 @@ use Yii;
  */
 class Feedback extends \yii\db\ActiveRecord
 {
-
-
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'feedback';
     }
@@ -34,7 +32,7 @@ class Feedback extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['created_at'], 'safe'],
@@ -51,7 +49,7 @@ class Feedback extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -69,7 +67,7 @@ class Feedback extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getAuthor()
+    public function getAuthor(): \yii\db\ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'author_id']);
     }
@@ -79,7 +77,7 @@ class Feedback extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getExecutor()
+    public function getExecutor(): \yii\db\ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'executor_id']);
     }
@@ -89,9 +87,8 @@ class Feedback extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getTask()
+    public function getTask(): \yii\db\ActiveQuery
     {
         return $this->hasOne(Task::class, ['id' => 'task_id']);
     }
-
 }

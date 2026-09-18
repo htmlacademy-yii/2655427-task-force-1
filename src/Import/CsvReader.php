@@ -8,17 +8,17 @@ use Generator;
 use SplFileObject;
 
 /**
- * Читает CSV-файл и возвращает его содержимое построчно.
+ * Reads a CSV file and returns its contents row by row.
  */
 class CsvReader
 {
     /**
-     * Считывает данные из CSV-файла.
+     * Reads data from a CSV file.
      *
-     * Первая строка используется в качестве заголовков столбцов.
-     * Каждая последующая строка возвращается в виде ассоциативного массива.
+     * The first row is used as column headers.
+     * Each subsequent row is returned as an associative array.
      *
-     * @param string $fileName Путь к CSV-файлу.
+     * @param string $fileName Path to the CSV file.
      *
      * @return Generator<int, array<string, string|null>>
      */

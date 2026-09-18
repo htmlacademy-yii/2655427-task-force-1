@@ -7,7 +7,7 @@ namespace TaskForce\Logic\Enums;
 use TaskForce\Logic\Exceptions\TaskException;
 
 /**
- * Перечисление всех возможных действий над заданием.
+ * Defines all possible actions that can be performed on a task.
  */
 enum TaskAction: string
 {
@@ -18,9 +18,9 @@ enum TaskAction: string
     case Refuse = 'refuse';
 
     /**
-     * Возвращает список статусов, в которых доступно данное действие.
+     * Returns the task statuses in which this action is available.
      *
-     * @return array Список допустимых статусов.
+     * @return array List of allowed task statuses.
      */
     public function availableInStatuses(): array
     {
@@ -34,11 +34,11 @@ enum TaskAction: string
     }
 
     /**
-     * Возвращает статус, в который переходит задание после выполнения действия.
+     * Returns the status the task transitions to after performing this action.
      *
-     * @return TaskStatus Новый статус задания.
+     * @return TaskStatus The resulting task status.
      *
-     * @throws TaskException Если действие не приводит к смене статуса.
+     * @throws TaskException If the action does not change the task status.
      */
     public function resultingStatus(): TaskStatus
     {
@@ -52,16 +52,21 @@ enum TaskAction: string
     }
 
     /**
-     * Проверяет, имеет ли пользователь право выполнить действие.
+     * Checks whether the current user has permission to perform the action.
      *
-     * @param int $customerId ID заказчика задания.
-     * @param int|null $executorId ID исполнителя задания.
-     * @param int $currentUserId ID текущего пользователя.
+     * @param int $customerId ID of the task customer.
+     * @param int|null $executorId ID of the task executor.
+     * @param int $currentUserId ID of the current user.
+     * @param TaskStatus $currentStatus Current task status.
      *
-     * @return bool Возвращает true, если действие доступно пользователю.
+     * @return bool Whether the action is available to the current user.
      */
-    public function checkRights(int $customerId, ?int $executorId, int $currentUserId, TaskStatus $currentStatus): bool
-    {
+    public function checkRights(
+        int $customerId,
+        ?int $executorId,
+        int $currentUserId,
+        TaskStatus $currentStatus
+    ): bool {
         return match ($this) {
             self::Respond => $customerId !== $currentUserId && $executorId === null,
             self::Cancel => $customerId === $currentUserId,
@@ -72,9 +77,9 @@ enum TaskAction: string
     }
 
     /**
-     * Возвращает отображаемое название действия.
+     * Returns the display name of the action.
      *
-     * @return string Название действия на русском языке.
+     * @return string Action name in Russian.
      */
     public function label(): string
     {

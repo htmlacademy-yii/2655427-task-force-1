@@ -16,6 +16,9 @@ use yii\web\Controller;
 use yii\web\ErrorAction;
 use yii\web\Response;
 
+/**
+ * Handles requests for the site.
+ */
 class SiteController extends Controller
 {
     public function __construct(

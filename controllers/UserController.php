@@ -6,9 +6,21 @@ use app\models\User;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
+/**
+ * Handles requests for users.
+ */
 class UserController extends Controller
 {
-    public function actionView($id)
+    /**
+     * Displays a user by their ID.
+     *
+     * @param int $id User ID.
+     *
+     * @return string
+     *
+     * @throws NotFoundHttpException If the user is not found.
+     */
+    public function actionView($id): string
     {
         $user = User::findOne($id);
 

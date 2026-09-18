@@ -20,9 +20,8 @@ use Yii;
  */
 class Response extends \yii\db\ActiveRecord
 {
-
     /**
-     * ENUM field values
+     * ENUM field values.
      */
     const STATUS_NEW = 'new';
     const STATUS_ACCEPTED = 'accepted';
@@ -31,7 +30,7 @@ class Response extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'response';
     }
@@ -39,7 +38,7 @@ class Response extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['price', 'comment'], 'default', 'value' => null],
@@ -58,7 +57,7 @@ class Response extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -76,7 +75,7 @@ class Response extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getTask()
+    public function getTask(): \yii\db\ActiveQuery
     {
         return $this->hasOne(Task::class, ['id' => 'task_id']);
     }
@@ -86,17 +85,17 @@ class Response extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getUser()
+    public function getUser(): \yii\db\ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
-
     /**
-     * column status ENUM value labels
+     * Returns available status values and their labels.
+     *
      * @return string[]
      */
-    public static function optsStatus()
+    public static function optsStatus(): array
     {
         return [
             self::STATUS_NEW => 'new',
@@ -106,48 +105,71 @@ class Response extends \yii\db\ActiveRecord
     }
 
     /**
+     * Returns the current status label.
+     *
      * @return string
      */
-    public function displayStatus()
+    public function displayStatus(): string
     {
         return self::optsStatus()[$this->status];
     }
 
     /**
+     * Checks whether the response has a new status.
+     *
      * @return bool
      */
-    public function isStatusNew()
+    public function isStatusNew(): bool
     {
         return $this->status === self::STATUS_NEW;
     }
 
-    public function setStatusToNew()
+    /**
+     * Sets the response status to new.
+     *
+     * @return void
+     */
+    public function setStatusToNew(): void
     {
         $this->status = self::STATUS_NEW;
     }
 
     /**
+     * Checks whether the response has an accepted status.
+     *
      * @return bool
      */
-    public function isStatusAccepted()
+    public function isStatusAccepted(): bool
     {
         return $this->status === self::STATUS_ACCEPTED;
     }
 
-    public function setStatusToAccepted()
+    /**
+     * Sets the response status to accepted.
+     *
+     * @return void
+     */
+    public function setStatusToAccepted(): void
     {
         $this->status = self::STATUS_ACCEPTED;
     }
 
     /**
+     * Checks whether the response has a rejected status.
+     *
      * @return bool
      */
-    public function isStatusRejected()
+    public function isStatusRejected(): bool
     {
         return $this->status === self::STATUS_REJECTED;
     }
 
-    public function setStatusToRejected()
+    /**
+     * Sets the response status to rejected.
+     *
+     * @return void
+     */
+    public function setStatusToRejected(): void
     {
         $this->status = self::STATUS_REJECTED;
     }

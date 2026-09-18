@@ -7,7 +7,7 @@ namespace TaskForce\Logic\Enums;
 use InvalidArgumentException;
 
 /**
- * Перечисление всех возможных статусов задания.
+ * Defines all possible task statuses.
  */
 enum TaskStatus: string
 {
@@ -18,9 +18,9 @@ enum TaskStatus: string
     case Failed = 'failed';
 
     /**
-     * Возвращает отображаемое название статуса.
+     * Returns the display name of the status.
      *
-     * @return string Название статуса на русском языке.
+     * @return string Status name in Russian.
      */
     public function label(): string
     {
