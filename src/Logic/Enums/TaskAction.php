@@ -70,7 +70,7 @@ enum TaskAction: string
         return match ($this) {
             self::Respond => $customerId !== $currentUserId && $executorId === null,
             self::Cancel => $customerId === $currentUserId,
-            self::Start => $customerId === $currentUserId && $executorId !== null,
+            self::Start => $customerId === $currentUserId && $executorId === null,
             self::Finish => $customerId === $currentUserId && $executorId !== null,
             self::Refuse => $executorId === $currentUserId,
         };
