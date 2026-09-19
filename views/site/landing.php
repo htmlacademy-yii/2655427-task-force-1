@@ -39,6 +39,7 @@ LandingAsset::register($this);
                         </g>
                     </svg>
                 </a>
+
                 <p>Работа там, где ты!</p>
             </div>
 
@@ -47,9 +48,12 @@ LandingAsset::register($this);
                     <span>Вход</span>
                 </a>
                 или
-                <a href="signup.html" class="header__account-registration">
-                    Регистрация
-                </a>
+
+                <?= Html::a(
+                    'Регистрация',
+                    ['registration/index'],
+                    ['class' => 'header__account-registration']
+                ) ?>
             </div>
         </div>
     </header>
@@ -68,7 +72,11 @@ LandingAsset::register($this);
                     Быстро, безопасно и с гарантией. Просто, как раз, два, три.
                 </p>
 
-                <button class="button">Создать аккаунт</button>
+                <?= Html::a(
+                    'Создать аккаунт',
+                    ['registration/index'],
+                    ['class' => 'button']
+                ) ?>
             </div>
 
             <div class="landing-center">
@@ -116,7 +124,7 @@ LandingAsset::register($this);
                             <li>Работайте где удобно</li>
                             <li>Свободный график</li>
                             <li>Удалённая работа</li>
-                            <li>Гарантия оплаты</li>
+                            <li>Свободный график</li>
                         </ul>
                     </div>
 
@@ -154,7 +162,11 @@ LandingAsset::register($this);
                     <li class="links__item"><a href="">Задания</a></li>
                     <li class="links__item"><a href="">Мой профиль</a></li>
                     <li class="links__item"><a href="">Исполнители</a></li>
-                    <li class="links__item"><a href="">Регистрация</a></li>
+
+                    <li class="links__item">
+                        <?= Html::a('Регистрация', ['registration/index']) ?>
+                    </li>
+
                     <li class="links__item"><a href="">Создать задание</a></li>
                     <li class="links__item"><a href="">Справка</a></li>
                 </ul>

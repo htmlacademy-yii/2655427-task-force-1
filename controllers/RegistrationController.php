@@ -35,6 +35,8 @@ class RegistrationController extends Controller
             );
 
             if ($user->save()) {
+                \Yii::$app->user->login($user);
+
                 return $this->redirect(['tasks/index']);
             }
 

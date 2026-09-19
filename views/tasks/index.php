@@ -19,7 +19,10 @@ use yii\widgets\ActiveForm;
 
             <div class="task-card">
                 <div class="header-task">
-                    <a href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>" class="link link--block link--big">
+                    <a
+                        href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>"
+                        class="link link--block link--big"
+                    >
                         <?= Html::encode($task->title) ?>
                     </a>
 
@@ -38,14 +41,21 @@ use yii\widgets\ActiveForm;
 
                 <div class="footer-task">
                     <p class="info-text town-text">
-                        <?= Html::encode($task->city->name) ?>
+                        <?php if ($task->city !== null): ?>
+                            <?= Html::encode($task->city->name) ?>
+                        <?php endif; ?>
                     </p>
 
                     <p class="info-text category-text">
-                        <?= Html::encode($task->category->name) ?>
+                        <?php if ($task->category !== null): ?>
+                            <?= Html::encode($task->category->name) ?>
+                        <?php endif; ?>
                     </p>
 
-                    <a href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>" class="button button--black">
+                    <a
+                        href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>"
+                        class="button button--black"
+                    >
                         Смотреть Задание
                     </a>
                 </div>
@@ -88,24 +98,34 @@ use yii\widgets\ActiveForm;
 
                 <h4 class="head-card">Категории</h4>
 
-                <?= $form->field($filter, 'categories')->checkboxList(
-                    ArrayHelper::map($categories, 'id', 'name')
-                ) ?>
+                <?= $form->field($filter, 'categories')
+                    ->label(false)
+                    ->dropDownList(
+                        ArrayHelper::map($categories, 'id', 'name'),
+                        [
+                            'prompt' => 'Выберите категорию',
+                        ]
+                    ) ?>
 
                 <h4 class="head-card">Дополнительно</h4>
 
                 <?= $form->field($filter, 'without_performer')
-                    ->checkbox(['label' => 'Без исполнителя']) ?>
+                    ->label(false)
+                    ->checkbox([
+                        'label' => 'Без исполнителя',
+                    ]) ?>
 
                 <h4 class="head-card">Период</h4>
 
-                <?= $form->field($filter, 'period')->dropDownList([
-                    1 => '1 час',
-                    12 => '12 часов',
-                    24 => '24 часа',
-                ], [
-                    'prompt' => 'Выберите период',
-                ]) ?>
+                <?= $form->field($filter, 'period')
+                    ->label(false)
+                    ->dropDownList([
+                        1 => '1 час',
+                        12 => '12 часов',
+                        24 => '24 часа',
+                    ], [
+                        'prompt' => 'Выберите период',
+                    ]) ?>
 
                 <input
                     type="submit"
