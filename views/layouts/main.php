@@ -81,7 +81,9 @@ $isRegistrationPage = Yii::$app->controller->route === 'registration/index';
             </a>
 
             <div class="user-menu">
-                <p class="user-name">Василий</p>
+                <p class="user-name">
+                    <?= Html::encode(Yii::$app->user->identity->name) ?>
+                </p>
 
                 <div class="popup-head">
                     <ul class="popup-menu">
@@ -94,7 +96,17 @@ $isRegistrationPage = Yii::$app->controller->route === 'registration/index';
                         </li>
 
                         <li class="menu-item">
-                            <a href="#" class="link">Выход из системы</a>
+                            <form
+                                action="<?= Url::to(['site/logout']) ?>"
+                                method="post"
+                            >
+                                <?= Html::submitButton(
+                                    'Выход из системы',
+                                    [
+                                        'class' => 'link',
+                                    ],
+                                ) ?>
+                            </form>
                         </li>
                     </ul>
                 </div>
