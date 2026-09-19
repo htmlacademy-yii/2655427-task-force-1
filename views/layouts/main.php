@@ -9,11 +9,15 @@ use yii\helpers\Url;
 $this->title = 'Taskforce';
 
 $isRegistrationPage = Yii::$app->controller->route === 'registration/index';
+$route = Yii::$app->controller->route;
+$isGuest = Yii::$app->user->isGuest;
 ?>
 
 <?php $this->beginPage() ?>
+
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -31,8 +35,10 @@ $isRegistrationPage = Yii::$app->controller->route === 'registration/index';
 <?php $this->beginBody() ?>
 
 <header class="page-header">
+
     <nav class="main-nav">
-        <a href="#" class="header-logo">
+
+        <a href="<?= Url::to(['site/index']) ?>" class="header-logo">
             <img
                 class="logo-image"
                 src="/img/logotype.png"
@@ -42,34 +48,60 @@ $isRegistrationPage = Yii::$app->controller->route === 'registration/index';
             >
         </a>
 
-        <?php if (!$isRegistrationPage): ?>
+        <?php if (!$isRegistrationPage && !$isGuest): ?>
 
             <div class="nav-wrapper">
+
                 <ul class="nav-list">
-                    <li class="list-item list-item--active">
-                        <a class="link link--nav">Новое</a>
+
+                    <li class="list-item <?= $route === 'tasks/index' ? 'list-item--active' : '' ?>">
+                        <a
+                            href="<?= Url::to(['tasks/index']) ?>"
+                            class="link link--nav"
+                        >
+                            Новое
+                        </a>
                     </li>
 
                     <li class="list-item">
-                        <a href="#" class="link link--nav">Мои задания</a>
+                        <a
+                            href="#"
+                            class="link link--nav"
+                        >
+                            Мои задания
+                        </a>
+                    </li>
+
+                    <li class="list-item <?= $route === 'tasks/create' ? 'list-item--active' : '' ?>">
+                        <a
+                            href="<?= Url::to(['tasks/create']) ?>"
+                            class="link link--nav"
+                        >
+                            Создать задание
+                        </a>
                     </li>
 
                     <li class="list-item">
-                        <a href="#" class="link link--nav">Создать задание</a>
+                        <a
+                            href="#"
+                            class="link link--nav"
+                        >
+                            Настройки
+                        </a>
                     </li>
 
-                    <li class="list-item">
-                        <a href="#" class="link link--nav">Настройки</a>
-                    </li>
                 </ul>
+
             </div>
 
         <?php endif; ?>
+
     </nav>
 
-    <?php if (!$isRegistrationPage): ?>
+    <?php if (!$isRegistrationPage && !$isGuest): ?>
 
         <div class="user-block">
+
             <a href="#">
                 <img
                     class="user-photo"
@@ -81,45 +113,61 @@ $isRegistrationPage = Yii::$app->controller->route === 'registration/index';
             </a>
 
             <div class="user-menu">
+
                 <p class="user-name">
                     <?= Html::encode(Yii::$app->user->identity->name) ?>
                 </p>
 
                 <div class="popup-head">
+
                     <ul class="popup-menu">
+
                         <li class="menu-item">
-                            <a href="#" class="link">Настройки</a>
+                            <a href="#" class="link">
+                                Настройки
+                            </a>
                         </li>
 
                         <li class="menu-item">
-                            <a href="#" class="link">Связаться с нами</a>
+                            <a href="#" class="link">
+                                Связаться с нами
+                            </a>
                         </li>
 
                         <li class="menu-item">
+
                             <form
                                 action="<?= Url::to(['site/logout']) ?>"
                                 method="post"
                             >
+                                <?= Html::hiddenInput(
+                                    Yii::$app->request->csrfParam,
+                                    Yii::$app->request->getCsrfToken()
+                                ) ?>
+
                                 <?= Html::submitButton(
                                     'Выход из системы',
-                                    [
-                                        'class' => 'link',
-                                    ],
+                                    ['class' => 'link']
                                 ) ?>
+
                             </form>
+
                         </li>
+
                     </ul>
+
                 </div>
+
             </div>
+
         </div>
 
     <?php endif; ?>
+
 </header>
 
 <main class="main-content container">
-
     <?= $content ?>
-
 </main>
 
 <?php $this->endBody() ?>
