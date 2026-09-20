@@ -16,6 +16,7 @@ use yii\db\ActiveQuery;
  * @property int $author_id
  * @property int|null $executor_id
  * @property int|null $city_id
+ * @property string|null $location
  * @property float|null $latitude
  * @property float|null $longitude
  * @property int|null $budget
@@ -33,16 +34,34 @@ use yii\db\ActiveQuery;
  */
 class Task extends \yii\db\ActiveRecord
 {
+    /**
+     * Returns the database table name.
+     *
+     * @return string Database table name.
+     */
     public static function tableName(): string
     {
         return 'task';
     }
 
+    /**
+     * Returns validation rules for task attributes.
+     *
+     * @return array<int, array<string, mixed>> Validation rules.
+     */
     public function rules(): array
     {
         return [
             [
-                ['executor_id', 'city_id', 'latitude', 'longitude', 'budget', 'deadline'],
+                [
+                    'executor_id',
+                    'city_id',
+                    'location',
+                    'latitude',
+                    'longitude',
+                    'budget',
+                    'deadline',
+                ],
                 'default',
                 'value' => null,
             ],
@@ -60,6 +79,14 @@ class Task extends \yii\db\ActiveRecord
             ],
 
             [
+                ['location'],
+                'filter',
+                'filter' => static function ($value) {
+                    return is_string($value) ? trim($value) : $value;
+                },
+            ],
+
+            [
                 'title',
                 'validateNonWhitespaceLength',
                 'params' => ['minLength' => 10],
@@ -72,7 +99,13 @@ class Task extends \yii\db\ActiveRecord
             ],
 
             [
-                ['status_id', 'category_id', 'author_id', 'executor_id', 'city_id'],
+                [
+                    'status_id',
+                    'category_id',
+                    'author_id',
+                    'executor_id',
+                    'city_id',
+                ],
                 'integer',
             ],
 
@@ -96,6 +129,12 @@ class Task extends \yii\db\ActiveRecord
             [
                 ['description'],
                 'string',
+            ],
+
+            [
+                ['location'],
+                'string',
+                'max' => 255,
             ],
 
             [
@@ -155,13 +194,18 @@ class Task extends \yii\db\ActiveRecord
     }
 
     /**
-     * Проверяет количество непробельных символов.
+     * Validates the number of non-whitespace characters in an attribute.
+     *
+     * @param string $attribute Attribute name.
+     * @param array<string, mixed> $params Validation parameters.
+     *
+     * @return void
      */
     public function validateNonWhitespaceLength(
         string $attribute,
         array $params
     ): void {
-        $value = preg_replace('/\s+/u', '', (string)$this->$attribute);
+        $value = preg_replace('/\s+/u', '', (string) $this->$attribute);
 
         if (mb_strlen($value) < $params['minLength']) {
             $this->addError(
@@ -173,6 +217,11 @@ class Task extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * Returns human-readable labels for model attributes.
+     *
+     * @return array<string, string> Attribute labels.
+     */
     public function attributeLabels(): array
     {
         return [
@@ -184,7 +233,8 @@ class Task extends \yii\db\ActiveRecord
             'description' => 'Подробности задания',
             'author_id' => 'Author ID',
             'executor_id' => 'Executor ID',
-            'city_id' => 'Локация',
+            'city_id' => 'Город',
+            'location' => 'Локация',
             'latitude' => 'Latitude',
             'longitude' => 'Longitude',
             'budget' => 'Бюджет',
@@ -192,46 +242,91 @@ class Task extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * Returns the task author relation.
+     *
+     * @return ActiveQuery Author relation.
+     */
     public function getAuthor(): ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'author_id']);
     }
 
+    /**
+     * Returns the task category relation.
+     *
+     * @return ActiveQuery Category relation.
+     */
     public function getCategory(): ActiveQuery
     {
         return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
 
+    /**
+     * Returns the task city relation.
+     *
+     * @return ActiveQuery City relation.
+     */
     public function getCity(): ActiveQuery
     {
         return $this->hasOne(City::class, ['id' => 'city_id']);
     }
 
+    /**
+     * Returns the task executor relation.
+     *
+     * @return ActiveQuery Executor relation.
+     */
     public function getExecutor(): ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'executor_id']);
     }
 
+    /**
+     * Returns the task feedback relation.
+     *
+     * @return ActiveQuery Feedback relation.
+     */
     public function getFeedback(): ActiveQuery
     {
         return $this->hasOne(Feedback::class, ['task_id' => 'id']);
     }
 
+    /**
+     * Returns the task files relation.
+     *
+     * @return ActiveQuery Files relation.
+     */
     public function getFiles(): ActiveQuery
     {
         return $this->hasMany(File::class, ['task_id' => 'id']);
     }
 
+    /**
+     * Returns the task responses relation.
+     *
+     * @return ActiveQuery Responses relation.
+     */
     public function getResponses(): ActiveQuery
     {
         return $this->hasMany(Response::class, ['task_id' => 'id']);
     }
 
+    /**
+     * Returns the task status relation.
+     *
+     * @return ActiveQuery Status relation.
+     */
     public function getStatus(): ActiveQuery
     {
         return $this->hasOne(Status::class, ['id' => 'status_id']);
     }
 
+    /**
+     * Returns users who responded to the task.
+     *
+     * @return ActiveQuery Users relation.
+     */
     public function getUsers(): ActiveQuery
     {
         return $this->hasMany(User::class, ['id' => 'user_id'])

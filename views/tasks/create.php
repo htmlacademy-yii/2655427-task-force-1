@@ -47,22 +47,22 @@ $cities = City::find()->all();
         ]
     ) ?>
 
-    <div class="form-group">
-        <label class="control-label" for="location">
-            Локация
-        </label>
+    <?= $form->field($task, 'city_id', [
+        'options' => ['class' => 'form-group'],
+    ])->dropDownList(
+        ArrayHelper::map($cities, 'id', 'name'),
+        [
+            'id' => 'city',
+            'prompt' => 'Выберите город',
+        ]
+    ) ?>
 
-        <?= Html::dropDownList(
-            'location',
-            null,
-            ArrayHelper::map($cities, 'id', 'name'),
-            [
-                'id' => 'location',
-                'class' => 'form-control',
-                'prompt' => 'Выберите город',
-            ]
-        ) ?>
-    </div>
+    <?= $form->field($task, 'location', [
+        'options' => ['class' => 'form-group'],
+    ])->textInput([
+        'id' => 'location',
+        'placeholder' => 'Например, ул. Тверская, 10',
+    ]) ?>
 
     <div class="half-wrapper">
 
