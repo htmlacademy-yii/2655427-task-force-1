@@ -51,7 +51,7 @@ class LoginForm extends Model
      */
     public function __construct(
         private readonly Security $security,
-        $config = []
+        array $config = []
     ) {
         parent::__construct($config);
     }

@@ -13,6 +13,7 @@ use yii\web\IdentityInterface;
  * @property int $failed_tasks_count
  * @property int $hide_contacts
  * @property int|null $vk_id
+ * @property int|null $github_id
  * @property string $created_at
  * @property string $email
  * @property string $name
@@ -59,11 +60,11 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['vk_id', 'password', 'avatar_path', 'phone_number', 'birthday', 'telegram'], 'default', 'value' => null],
+            [['vk_id', 'github_id', 'password', 'avatar_path', 'phone_number', 'birthday', 'telegram'], 'default', 'value' => null],
             [['hide_contacts'], 'default', 'value' => 0],
             [['user_role', 'email', 'name', 'city_id'], 'required'],
             [['user_role'], 'string'],
-            [['failed_tasks_count', 'hide_contacts', 'vk_id', 'city_id'], 'integer'],
+            [['failed_tasks_count', 'hide_contacts', 'vk_id', 'github_id', 'city_id'], 'integer'],
             [['created_at', 'birthday'], 'safe'],
             [['email', 'name'], 'string', 'max' => 128],
             [['password', 'avatar_path'], 'string', 'max' => 255],
@@ -71,7 +72,7 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
             [['telegram'], 'string', 'max' => 64],
             ['user_role', 'in', 'range' => array_keys(self::optsUserRole())],
             [['email'], 'unique'],
-            [['vk_id'], 'unique'],
+            [['github_id'], 'unique'],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
         ];
     }
@@ -87,6 +88,7 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
             'failed_tasks_count' => 'Failed Tasks Count',
             'hide_contacts' => 'Hide Contacts',
             'vk_id' => 'Vk ID',
+            'github_id' => 'GitHub ID',
             'created_at' => 'Created At',
             'email' => 'Email',
             'name' => 'Name',
