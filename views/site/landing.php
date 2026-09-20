@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use app\assets\LandingAsset;
 use yii\helpers\Html;
-use yii\helpers\Url;
 
 LandingAsset::register($this);
 ?>
@@ -44,10 +43,13 @@ LandingAsset::register($this);
             </div>
 
             <div class="header__account--index">
-                <a href="#" class="header__account-enter open-modal" data-for="enter-form">
-                    <span>Вход</span>
-                </a>
-                или
+                <?= Html::a(
+                    'Вход',
+                    ['site/login'],
+                    ['class' => 'header__account-enter']
+                ) ?>
+
+                <span>или</span>
 
                 <?= Html::a(
                     'Регистрация',
@@ -68,7 +70,7 @@ LandingAsset::register($this);
 
                 <p>
                     Сломался кран на кухне? Надо отправить документы? Нет времени самому гулять с собакой?
-                    У нас вы быстро найдёте исполнителя для любой жизненной ситуации?<br>
+                    У нас вы быстро найдёте исполнителя для любой жизненной ситуации.<br>
                     Быстро, безопасно и с гарантией. Просто, как раз, два, три.
                 </p>
 
@@ -185,45 +187,4 @@ LandingAsset::register($this);
             </div>
         </div>
     </footer>
-
-    <section class="modal enter-form form-modal" id="enter-form">
-        <h2>Вход на сайт</h2>
-
-        <form
-            id="login-form"
-            action="<?= Url::to(['site/login']) ?>"
-            method="post"
-        >
-            <?= Html::hiddenInput(
-                Yii::$app->request->csrfParam,
-                Yii::$app->request->getCsrfToken()
-            ) ?>
-
-            <p>
-                <label class="form-modal-description" for="enter-email">Email</label>
-                <input
-                    class="enter-form-email input input-middle"
-                    type="email"
-                    name="LoginForm[email]"
-                    id="enter-email"
-                >
-            </p>
-
-            <p>
-                <label class="form-modal-description" for="enter-password">Пароль</label>
-                <input
-                    class="enter-form-email input input-middle"
-                    type="password"
-                    name="LoginForm[password]"
-                    id="enter-password"
-                >
-            </p>
-
-            <div id="login-errors"></div>
-
-            <button class="button" type="submit">Войти</button>
-        </form>
-
-        <button class="form-modal-close" type="button">Закрыть</button>
-    </section>
 </div>

@@ -121,23 +121,7 @@ class TasksController extends Controller
                 $task->status_id = $status->id;
             }
 
-            if (!empty($task->location)) {
-                $coordinates = $this->getCoordinates($task->location);
-
-                if ($coordinates === null) {
-                    $task->addError(
-                        'location',
-                        'Не удалось определить координаты указанного места.'
-                    );
-                } else {
-                    $task->longitude = $coordinates['longitude'];
-                    $task->latitude = $coordinates['latitude'];
-                }
-            } else {
-                $task->city_id = null;
-                $task->latitude = null;
-                $task->longitude = null;
-            }
+            $this->setCoordinates($task);
 
             if ($task->validate()) {
                 $files = UploadedFile::getInstancesByName('files');
@@ -178,6 +162,37 @@ class TasksController extends Controller
             'task' => $task,
             'categories' => $categories,
         ]);
+    }
+
+    /**
+     * Sets task coordinates based on its location.
+     *
+     * @param Task $task Task model.
+     *
+     * @return void
+     */
+    private function setCoordinates(Task $task): void
+    {
+        if (empty($task->location)) {
+            $task->city_id = null;
+            $task->latitude = null;
+            $task->longitude = null;
+
+            return;
+        }
+
+        $coordinates = $this->getCoordinates($task->location);
+
+        if ($coordinates === null) {
+            $task->addError(
+                'location',
+                'Не удалось определить координаты указанного места.'
+            );
+            return;
+        }
+
+        $task->longitude = $coordinates['longitude'];
+        $task->latitude = $coordinates['latitude'];
     }
 
     /**

@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
+use app\models\City;
 use app\models\ContactForm;
 use app\models\LoginForm;
+use app\models\User;
 use Yii;
+use yii\authclient\AuthAction;
+use yii\authclient\ClientInterface;
+use yii\base\Module;
 use yii\base\Security;
 use yii\captcha\CaptchaAction;
 use yii\filters\AccessControl;
@@ -22,11 +27,11 @@ use yii\web\Response;
 class SiteController extends Controller
 {
     public function __construct(
-        $id,
-        $module,
+        string $id,
+        Module $module,
         private readonly MailerInterface $mailer,
         private readonly Security $security,
-        $config = [],
+        array $config = [],
     ) {
         parent::__construct($id, $module, $config);
     }
@@ -74,6 +79,10 @@ class SiteController extends Controller
                 'class' => CaptchaAction::class,
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
                 'transparent' => true,
+            ],
+            'auth' => [
+                'class' => AuthAction::class,
+                'successCallback' => [$this, 'onAuthSuccess'],
             ],
         ];
     }
@@ -131,6 +140,53 @@ class SiteController extends Controller
         return $this->render('login', [
             'model' => $model,
         ]);
+    }
+
+    /**
+     * Handles successful authentication through an external provider.
+     *
+     * @param ClientInterface $client Authentication client.
+     *
+     * @return void
+     */
+    public function onAuthSuccess(ClientInterface $client): void
+    {
+        $attributes = $client->getUserAttributes();
+
+        $githubId = (int) $attributes['id'];
+        $email = $attributes['email'] ?? null;
+
+        $user = User::findOne(['github_id' => $githubId]);
+
+        if ($user === null && $email !== null) {
+            $user = User::findOne(['email' => $email]);
+
+            if ($user !== null) {
+                $user->github_id = $githubId;
+                $user->save(false);
+            }
+        }
+
+        if ($user === null) {
+            $city = City::findOne(['name' => $attributes['location'] ?? '']);
+
+            if ($city === null) {
+                $city = City::find()->one();
+            }
+
+            $user = new User();
+            $user->github_id = $githubId;
+            $user->email = $email ?: $githubId . '@github.local';
+            $user->name = $attributes['name'] ?? $attributes['login'];
+            $user->city_id = $city->id;
+            $user->user_role = User::USER_ROLE_CUSTOMER;
+            $user->avatar_path = $attributes['avatar_url'] ?? null;
+            $user->save(false);
+        }
+
+        Yii::$app->user->login($user);
+
+        $this->redirect(['tasks/index']);
     }
 
     /**

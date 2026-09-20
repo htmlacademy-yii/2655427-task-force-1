@@ -3,6 +3,10 @@
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
+$localConfig = file_exists(__DIR__ . '/web-local.php')
+    ? require __DIR__ . '/web-local.php'
+    : [];
+
 $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
@@ -22,6 +26,16 @@ $config = [
         '@npm'   => '@vendor/npm-asset',
     ],
     'components' => [
+        'authClientCollection' => [
+            'class' => yii\authclient\Collection::class,
+            'clients' => [
+                'github' => [
+                    'class' => yii\authclient\clients\GitHub::class,
+                    'clientId' => 'Ov23liev9dj8XvoUZKnd',
+                    'clientSecret' => $localConfig['githubClientSecret'] ?? '',
+                ],
+            ],
+        ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'URiySkQ38cKplw1A0O-pjVxdEsmTNZ7d',
