@@ -13,14 +13,23 @@ use Yii;
 use TaskForce\Logic\Enums\TaskAction;
 use TaskForce\Logic\Enums\TaskStatus;
 use yii\filters\AccessControl;
+use yii\httpclient\Client;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response as WebResponse;
 use yii\web\UploadedFile;
 
+/**
+ * Handles task-related actions.
+ */
 class TasksController extends Controller
 {
+    /**
+     * Configures access control for controller actions.
+     *
+     * @return array<string, mixed> Access control configuration.
+     */
     public function behaviors(): array
     {
         return [
@@ -45,6 +54,11 @@ class TasksController extends Controller
         ];
     }
 
+    /**
+     * Displays the list of available tasks.
+     *
+     * @return string Rendered task list page.
+     */
     public function actionIndex(): string
     {
         $filter = new TaskFilter();
@@ -54,7 +68,7 @@ class TasksController extends Controller
 
         $query = Task::find()
             ->joinWith('status')
-            ->where(['status.name' => 'Новое']);
+            ->where(['status.name' => TaskStatus::New->label()]);
 
         if (!empty($filter->categories)) {
             $query->andWhere(['category_id' => $filter->categories]);
@@ -86,7 +100,12 @@ class TasksController extends Controller
         ]);
     }
 
-    public function actionCreate()
+    /**
+     * Creates a new task.
+     *
+     * @return string|WebResponse Rendered form or redirect response.
+     */
+    public function actionCreate(): string|WebResponse
     {
         $task = new Task();
         $categories = Category::find()->all();
@@ -94,17 +113,39 @@ class TasksController extends Controller
         if ($task->load(Yii::$app->request->post())) {
             $task->author_id = Yii::$app->user->id;
 
-            $status = Status::findOne(['name' => 'Новое']);
+            $status = Status::findOne([
+                'name' => TaskStatus::New->label(),
+            ]);
 
             if ($status !== null) {
                 $task->status_id = $status->id;
+            }
+
+            if (!empty($task->location)) {
+                $coordinates = $this->getCoordinates($task->location);
+
+                if ($coordinates === null) {
+                    $task->addError(
+                        'location',
+                        'Не удалось определить координаты указанного места.'
+                    );
+                } else {
+                    $task->longitude = $coordinates['longitude'];
+                    $task->latitude = $coordinates['latitude'];
+                }
+            } else {
+                $task->city_id = null;
+                $task->latitude = null;
+                $task->longitude = null;
             }
 
             if ($task->validate()) {
                 $files = UploadedFile::getInstancesByName('files');
 
                 if ($task->save()) {
-                    $uploadDirectory = Yii::getAlias('@webroot/uploads/tasks');
+                    $uploadDirectory = Yii::getAlias(
+                        '@webroot/uploads/tasks'
+                    );
 
                     if (!is_dir($uploadDirectory)) {
                         mkdir($uploadDirectory, 0777, true);
@@ -139,7 +180,78 @@ class TasksController extends Controller
         ]);
     }
 
-    public function actionView($id): string
+    /**
+     * Gets coordinates for a location using the Yandex geocoder.
+     *
+     * @param string $location Location to geocode.
+     *
+     * @return array{longitude: float, latitude: float}|null Coordinates
+     * or null if the location could not be found.
+     */
+    private function getCoordinates(string $location): ?array
+    {
+        $client = new Client();
+
+        $response = $client->createRequest()
+            ->setMethod('GET')
+            ->setUrl('https://geocode-maps.yandex.ru/v1/')
+            ->setData([
+                'apikey' => 'e75e2509-62f6-4ab7-852e-1e8ec6cd9d92',
+                'geocode' => $location,
+                'lang' => 'ru_RU',
+                'format' => 'json',
+            ])
+            ->send();
+
+        if (!$response->isOk) {
+            return null;
+        }
+
+        $data = $response->data;
+
+        $pos = $data[
+            'response'
+        ][
+            'GeoObjectCollection'
+        ][
+            'featureMember'
+        ][0][
+            'GeoObject'
+        ][
+            'Point'
+        ][
+            'pos'
+        ] ?? null;
+
+        if ($pos === null) {
+            return null;
+        }
+
+        $coordinates = preg_split(
+            '/\s+/',
+            trim($pos)
+        );
+
+        if (count($coordinates) < 2) {
+            return null;
+        }
+
+        return [
+            'longitude' => (float) $coordinates[0],
+            'latitude' => (float) $coordinates[1],
+        ];
+    }
+
+    /**
+     * Displays a task.
+     *
+     * @param int $id Task ID.
+     *
+     * @return string Rendered task page.
+     *
+     * @throws NotFoundHttpException If the task does not exist.
+     */
+    public function actionView(int $id): string
     {
         $task = Task::findOne($id);
 
@@ -152,10 +264,21 @@ class TasksController extends Controller
         return $this->render('view', [
             'task' => $task,
             'response' => $response,
+            'feedback' => new Feedback(),
         ]);
     }
 
-    public function actionRespond($id)
+    /**
+     * Creates a response to a task.
+     *
+     * @param int $id Task ID.
+     *
+     * @return string|WebResponse Rendered task page or redirect response.
+     *
+     * @throws NotFoundHttpException If the task does not exist.
+     * @throws ForbiddenHttpException If the action is not allowed.
+     */
+    public function actionRespond(int $id): string|WebResponse
     {
         $task = $this->findTask($id);
         $userId = (int) Yii::$app->user->id;
@@ -189,7 +312,17 @@ class TasksController extends Controller
         ]);
     }
 
-    public function actionAcceptResponse($id): WebResponse
+    /**
+     * Accepts a response to a task.
+     *
+     * @param int $id Response ID.
+     *
+     * @return WebResponse Redirect response.
+     *
+     * @throws NotFoundHttpException If the response or status does not exist.
+     * @throws ForbiddenHttpException If the action is not allowed.
+     */
+    public function actionAcceptResponse(int $id): WebResponse
     {
         $response = $this->findResponse($id);
         $task = $response->task;
@@ -226,7 +359,17 @@ class TasksController extends Controller
         );
     }
 
-    public function actionRejectResponse($id): WebResponse
+    /**
+     * Rejects a response to a task.
+     *
+     * @param int $id Response ID.
+     *
+     * @return WebResponse Redirect response.
+     *
+     * @throws NotFoundHttpException If the response does not exist.
+     * @throws ForbiddenHttpException If the action is not allowed.
+     */
+    public function actionRejectResponse(int $id): WebResponse
     {
         $response = $this->findResponse($id);
         $task = $response->task;
@@ -259,7 +402,17 @@ class TasksController extends Controller
         ]);
     }
 
-    public function actionFinish($id)
+    /**
+     * Finishes a task and creates feedback.
+     *
+     * @param int $id Task ID.
+     *
+     * @return string|WebResponse Rendered task page or redirect response.
+     *
+     * @throws NotFoundHttpException If the task or status does not exist.
+     * @throws ForbiddenHttpException If the action is not allowed.
+     */
+    public function actionFinish(int $id): string|WebResponse
     {
         $task = $this->findTask($id);
         $userId = (int) Yii::$app->user->id;
@@ -302,7 +455,17 @@ class TasksController extends Controller
         ]);
     }
 
-    public function actionRefuse($id): WebResponse
+    /**
+     * Marks a task as failed.
+     *
+     * @param int $id Task ID.
+     *
+     * @return WebResponse Redirect response.
+     *
+     * @throws NotFoundHttpException If the task or status does not exist.
+     * @throws ForbiddenHttpException If the action is not allowed.
+     */
+    public function actionRefuse(int $id): WebResponse
     {
         $task = $this->findTask($id);
         $userId = (int) Yii::$app->user->id;
@@ -329,7 +492,17 @@ class TasksController extends Controller
         );
     }
 
-    public function actionCancel($id): WebResponse
+    /**
+     * Cancels a task.
+     *
+     * @param int $id Task ID.
+     *
+     * @return WebResponse Redirect response.
+     *
+     * @throws NotFoundHttpException If the task or status does not exist.
+     * @throws ForbiddenHttpException If the action is not allowed.
+     */
+    public function actionCancel(int $id): WebResponse
     {
         $task = $this->findTask($id);
         $userId = (int) Yii::$app->user->id;
@@ -356,7 +529,16 @@ class TasksController extends Controller
         );
     }
 
-    private function findTask($id): Task
+    /**
+     * Finds a task by its ID.
+     *
+     * @param int $id Task ID.
+     *
+     * @return Task Task model.
+     *
+     * @throws NotFoundHttpException If the task does not exist.
+     */
+    private function findTask(int $id): Task
     {
         $task = Task::findOne($id);
 
@@ -369,7 +551,16 @@ class TasksController extends Controller
         return $task;
     }
 
-    private function findResponse($id): Response
+    /**
+     * Finds a response by its ID.
+     *
+     * @param int $id Response ID.
+     *
+     * @return Response Response model.
+     *
+     * @throws NotFoundHttpException If the response does not exist.
+     */
+    private function findResponse(int $id): Response
     {
         $response = Response::findOne($id);
 
@@ -382,6 +573,15 @@ class TasksController extends Controller
         return $response;
     }
 
+    /**
+     * Finds a task status by its enum value.
+     *
+     * @param TaskStatus $status Task status enum.
+     *
+     * @return Status Status model.
+     *
+     * @throws NotFoundHttpException If the status does not exist.
+     */
     private function findStatus(TaskStatus $status): Status
     {
         $model = Status::findOne([
@@ -397,6 +597,17 @@ class TasksController extends Controller
         return $model;
     }
 
+    /**
+     * Checks whether a user can perform an action on a task.
+     *
+     * @param Task $task Task model.
+     * @param TaskAction $action Task action.
+     * @param int $userId Current user ID.
+     *
+     * @return void
+     *
+     * @throws ForbiddenHttpException If the action is not allowed.
+     */
     private function checkTaskAction(
         Task $task,
         TaskAction $action,
@@ -428,6 +639,15 @@ class TasksController extends Controller
         }
     }
 
+    /**
+     * Converts a task status name to the corresponding enum value.
+     *
+     * @param Task $task Task model.
+     *
+     * @return TaskStatus Task status enum.
+     *
+     * @throws ForbiddenHttpException If the task has an unknown status.
+     */
     private function getTaskStatus(Task $task): TaskStatus
     {
         return match ($task->status->name) {

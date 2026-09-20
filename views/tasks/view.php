@@ -152,17 +152,21 @@ if (!$isAuthor && !$isGuest) {
 
     <?php endif; ?>
 
-    <?php if ($task->city): ?>
+    <?php if (
+        $task->latitude !== null
+        && $task->longitude !== null
+    ): ?>
 
         <div class="task-map">
 
             <div
+                id="task-map"
                 class="map"
                 style="height: 346px; width: 725px;"
             ></div>
 
             <p class="map-address town">
-                <?= Html::encode($task->city->name) ?>
+                <?= Html::encode($task->location) ?>
             </p>
 
         </div>
@@ -681,3 +685,39 @@ if (!$isAuthor && !$isGuest) {
 <?php endif; ?>
 
 <div class="overlay <?= $overlayClass ?>"></div>
+<?php if (
+    $task->latitude !== null
+    && $task->longitude !== null
+): ?>
+
+    <?php
+    $this->registerJsFile(
+        'https://api-maps.yandex.ru/2.1/?apikey=e666f398-c983-4bde-8f14-e3fec900592a&lang=ru_RU',
+        [
+            'position' => \yii\web\View::POS_HEAD,
+        ]
+    );
+
+    $latitude = (float) $task->latitude;
+    $longitude = (float) $task->longitude;
+
+    $this->registerJs(
+        <<<JS
+        ymaps.ready(function () {
+            const map = new ymaps.Map('task-map', {
+                center: [$latitude, $longitude],
+                zoom: 15,
+                controls: ['zoomControl']
+            });
+
+            const placemark = new ymaps.Placemark(
+                [$latitude, $longitude]
+            );
+
+            map.geoObjects.add(placemark);
+        });
+        JS
+    );
+    ?>
+
+<?php endif; ?>
