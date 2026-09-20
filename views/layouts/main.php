@@ -2,6 +2,9 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\assets\AppAsset;
+
+AppAsset::register($this);
 
 /** @var yii\web\View $this */
 /** @var string $content */

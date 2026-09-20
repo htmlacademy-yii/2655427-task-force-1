@@ -30,9 +30,10 @@ class AppAsset extends AssetBundle
     ];
     public $js = [
         'js/color-mode.js',
+        'js/main.js',
     ];
     public $jsOptions = [
-        'position' => View::POS_HEAD,
+        'position' => View::POS_END,
     ];
     public $depends = [
         YiiAsset::class,
