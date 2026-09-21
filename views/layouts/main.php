@@ -67,12 +67,11 @@ $isGuest = Yii::$app->user->isGuest;
                     </li>
 
                     <li class="list-item">
-                        <a
-                            href="#"
-                            class="link link--nav"
-                        >
-                            Мои задания
-                        </a>
+                        <?= Html::a(
+                            'Мои задания',
+                            ['tasks/my-tasks'],
+                            ['class' => 'link link--nav']
+                        ) ?>
                     </li>
 
                     <li class="list-item <?= $route === 'tasks/create' ? 'list-item--active' : '' ?>">
@@ -84,9 +83,9 @@ $isGuest = Yii::$app->user->isGuest;
                         </a>
                     </li>
 
-                    <li class="list-item">
+                    <li class="list-item <?= $route === 'profile/index' ? 'list-item--active' : '' ?>">
                         <a
-                            href="#"
+                            href="<?= Url::to(['profile/index']) ?>"
                             class="link link--nav"
                         >
                             Настройки
@@ -105,10 +104,14 @@ $isGuest = Yii::$app->user->isGuest;
 
         <div class="user-block">
 
-            <a href="#">
+            <a href="<?= Url::to(['profile/index']) ?>">
                 <img
                     class="user-photo"
-                    src="/img/man-glasses.png"
+                    src="<?= Html::encode(
+                        Yii::$app->user->identity->avatar_path !== null
+                            ? Yii::getAlias('@web') . Yii::$app->user->identity->avatar_path
+                            : Yii::getAlias('@web/img/man-glasses.png')
+                    ) ?>"
                     width="55"
                     height="55"
                     alt="Аватар"
@@ -126,7 +129,7 @@ $isGuest = Yii::$app->user->isGuest;
                     <ul class="popup-menu">
 
                         <li class="menu-item">
-                            <a href="#" class="link">
+                            <a href="<?= Url::to(['profile/index']) ?>" class="link">
                                 Настройки
                             </a>
                         </li>

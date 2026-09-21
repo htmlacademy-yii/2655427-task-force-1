@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\controllers;
 
 use app\models\Category;
+use app\models\City;
 use app\models\Feedback;
 use app\models\File;
 use app\models\Response;
 use app\models\Status;
 use app\models\Task;
 use app\models\TaskFilter;
+use app\models\User;
 use Yii;
 use TaskForce\Logic\Enums\TaskAction;
 use TaskForce\Logic\Enums\TaskStatus;
@@ -19,6 +23,7 @@ use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response as WebResponse;
 use yii\web\UploadedFile;
+use yii\data\ActiveDataProvider;
 
 /**
  * Handles task-related actions.
@@ -37,6 +42,7 @@ class TasksController extends Controller
                 'class' => AccessControl::class,
                 'only' => [
                     'create',
+                    'my-tasks',
                     'respond',
                     'accept-response',
                     'reject-response',
@@ -89,14 +95,144 @@ class TasksController extends Controller
             ]);
         }
 
-        $tasks = $query
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query->orderBy([
+                'created_at' => SORT_DESC,
+            ]),
+            'pagination' => [
+                'pageSize' => 5,
+            ],
+        ]);
+
+        return $this->render('index', [
+            'tasks' => $dataProvider->getModels(),
+            'filter' => $filter,
+            'categories' => $categories,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    /**
+     * Displays the current user's tasks.
+     *
+     * @return string Rendered my tasks page.
+     */
+    public function actionMyTasks(): string
+    {
+        $userId = (int) Yii::$app->user->id;
+
+        /** @var User $user */
+        $user = Yii::$app->user->identity;
+
+        $newStatus = TaskStatus::New->label();
+        $workStatus = TaskStatus::Work->label();
+        $cancelStatus = TaskStatus::Cancel->label();
+        $doneStatus = TaskStatus::Done->label();
+        $failedStatus = TaskStatus::Failed->label();
+
+        if ($user->isUserRoleCustomer()) {
+            $newTasks = Task::find()
+                ->joinWith('status')
+                ->where([
+                    'author_id' => $userId,
+                    'status.name' => $newStatus,
+                    'executor_id' => null,
+                ])
+                ->orderBy(['created_at' => SORT_DESC])
+                ->all();
+
+            $inProgressTasks = Task::find()
+                ->joinWith('status')
+                ->where([
+                    'author_id' => $userId,
+                    'status.name' => $workStatus,
+                ])
+                ->orderBy(['created_at' => SORT_DESC])
+                ->all();
+
+            $closedTasks = Task::find()
+                ->joinWith('status')
+                ->where([
+                    'author_id' => $userId,
+                    'status.name' => [
+                        $cancelStatus,
+                        $doneStatus,
+                        $failedStatus,
+                    ],
+                ])
+                ->orderBy(['created_at' => SORT_DESC])
+                ->all();
+
+            return $this->render('my-tasks', [
+                'newTasks' => $newTasks,
+                'inProgressTasks' => $inProgressTasks,
+                'closedTasks' => $closedTasks,
+                'overdueTasks' => [],
+                'isExecutor' => false,
+            ]);
+        }
+
+        $inProgressTasks = Task::find()
+            ->joinWith('status')
+            ->innerJoin(
+                'response',
+                'response.task_id = task.id'
+            )
+            ->where([
+                'response.user_id' => $userId,
+                'status.name' => $workStatus,
+            ])
+            ->andWhere([
+                'or',
+                ['deadline' => null],
+                ['>=', 'deadline', date('Y-m-d')],
+            ])
+            ->distinct()
             ->orderBy(['created_at' => SORT_DESC])
             ->all();
 
-        return $this->render('index', [
-            'tasks' => $tasks,
-            'filter' => $filter,
-            'categories' => $categories,
+        $overdueTasks = Task::find()
+            ->joinWith('status')
+            ->innerJoin(
+                'response',
+                'response.task_id = task.id'
+            )
+            ->where([
+                'response.user_id' => $userId,
+                'status.name' => $workStatus,
+            ])
+            ->andWhere([
+                '<',
+                'deadline',
+                date('Y-m-d'),
+            ])
+            ->distinct()
+            ->orderBy(['created_at' => SORT_DESC])
+            ->all();
+
+        $closedTasks = Task::find()
+            ->joinWith('status')
+            ->innerJoin(
+                'response',
+                'response.task_id = task.id'
+            )
+            ->where([
+                'response.user_id' => $userId,
+                'status.name' => [
+                    $doneStatus,
+                    $failedStatus,
+                ],
+            ])
+            ->distinct()
+            ->orderBy(['created_at' => SORT_DESC])
+            ->all();
+
+        return $this->render('my-tasks', [
+            'newTasks' => [],
+            'inProgressTasks' => $inProgressTasks,
+            'overdueTasks' => $overdueTasks,
+            'closedTasks' => $closedTasks,
+            'isExecutor' => true,
         ]);
     }
 
@@ -109,6 +245,7 @@ class TasksController extends Controller
     {
         $task = new Task();
         $categories = Category::find()->all();
+        $cities = City::find()->all();
 
         if ($task->load(Yii::$app->request->post())) {
             $task->author_id = Yii::$app->user->id;
@@ -161,6 +298,7 @@ class TasksController extends Controller
         return $this->render('create', [
             'task' => $task,
             'categories' => $categories,
+            'cities' => $cities,
         ]);
     }
 
@@ -188,6 +326,7 @@ class TasksController extends Controller
                 'location',
                 'Не удалось определить координаты указанного места.'
             );
+
             return;
         }
 
@@ -211,7 +350,7 @@ class TasksController extends Controller
             ->setMethod('GET')
             ->setUrl('https://geocode-maps.yandex.ru/v1/')
             ->setData([
-                'apikey' => 'e75e2509-62f6-4ab7-852e-1e8ec6cd9d92',
+                'apikey' => Yii::$app->params['yandexGeocoderApiKey'],
                 'geocode' => $location,
                 'lang' => 'ru_RU',
                 'format' => 'json',
@@ -247,7 +386,7 @@ class TasksController extends Controller
             trim($pos)
         );
 
-        if (count($coordinates) < 2) {
+        if ($coordinates === false || count($coordinates) < 2) {
             return null;
         }
 
@@ -396,7 +535,10 @@ class TasksController extends Controller
             );
         }
 
-        if ($task->status->name !== TaskStatus::New->label()) {
+        if (
+            $task->status === null
+            || $task->status->name !== TaskStatus::New->label()
+        ) {
             throw new ForbiddenHttpException(
                 'Отклики нельзя изменять после начала работы.'
             );
@@ -645,8 +787,7 @@ class TasksController extends Controller
             $task->executor_id !== null
                 ? (int) $task->executor_id
                 : null,
-            $userId,
-            $currentStatus
+            $userId
         )) {
             throw new ForbiddenHttpException(
                 'У вас нет прав для выполнения этого действия.'
@@ -665,6 +806,12 @@ class TasksController extends Controller
      */
     private function getTaskStatus(Task $task): TaskStatus
     {
+        if ($task->status === null) {
+            throw new ForbiddenHttpException(
+                'Статус задания не найден.'
+            );
+        }
+
         return match ($task->status->name) {
             'Новое' => TaskStatus::New,
             'Отменено' => TaskStatus::Cancel,

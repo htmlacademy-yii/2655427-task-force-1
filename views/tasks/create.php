@@ -1,17 +1,19 @@
 <?php
 
-use app\models\City;
+declare(strict_types=1);
+
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
-/** @var yii\web\View $this */
-/** @var app\models\Task $task */
-/** @var app\models\Category[] $categories */
+/**
+ * @var yii\web\View $this
+ * @var app\models\Task $task
+ * @var app\models\Category[] $categories
+ * @var app\models\City[] $cities
+ */
 
 $this->title = 'Публикация нового задания';
-
-$cities = City::find()->all();
 ?>
 
 <div class="add-task-form regular-form">

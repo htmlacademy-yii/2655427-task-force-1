@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace TaskForce\Logic\Enums;
 
-use InvalidArgumentException;
-
 /**
  * Defines all possible task statuses.
  */
@@ -24,13 +22,12 @@ enum TaskStatus: string
      */
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::New => 'Новое',
             self::Cancel => 'Отменено',
             self::Work => 'В работе',
             self::Done => 'Выполнено',
             self::Failed => 'Провалено',
-            default => throw new InvalidArgumentException("Статус {$this->name} не имеет заданного лейбла."),
         };
     }
 }

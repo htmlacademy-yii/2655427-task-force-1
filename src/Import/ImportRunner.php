@@ -14,6 +14,9 @@ class ImportRunner
     private CsvReader $reader;
     private SqlConverter $converter;
 
+    /**
+     * Creates an import runner.
+     */
     public function __construct()
     {
         $this->reader = new CsvReader();
@@ -26,6 +29,10 @@ class ImportRunner
      * @param string $csvFile Path to the CSV file.
      * @param string $table Database table name.
      * @param string $outputFile Path to the SQL file.
+     *
+     * @return void
+     *
+     * @throws RuntimeException If the output file cannot be opened.
      */
     public function run(
         string $csvFile,

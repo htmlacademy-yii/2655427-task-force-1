@@ -5,11 +5,11 @@ declare(strict_types=1);
 /**
  * Landing page layout.
  *
- * @var \yii\web\View $this
+ * @var yii\web\View $this
  * @var string $content
  */
 
-use yii\helpers\Html;
+use Yii;
 
 $this->beginPage();
 ?>

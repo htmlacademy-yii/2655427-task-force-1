@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TaskForce\Import;
 
 use Generator;
+use RuntimeException;
 use SplFileObject;
 
 /**
@@ -18,9 +19,11 @@ class CsvReader
      * The first row is used as column headers.
      * Each subsequent row is returned as an associative array.
      *
-     * @param string $fileName Path to the CSV file.
+     * @param string $fileName Path to a CSV file.
      *
      * @return Generator<int, array<string, string|null>>
+     *
+     * @throws RuntimeException If a CSV row does not match the header.
      */
     public function read(string $fileName): Generator
     {
@@ -43,7 +46,15 @@ class CsvReader
                 continue;
             }
 
-            yield array_combine($header, $row);
+            $result = array_combine($header, $row);
+
+            if ($result === false) {
+                throw new RuntimeException(
+                    'Количество значений в CSV-строке не совпадает с количеством заголовков.'
+                );
+            }
+
+            yield $result;
         }
     }
 }

@@ -1,6 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\models;
+
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "user_category".
@@ -14,7 +18,9 @@ namespace app\models;
 class UserCategory extends \yii\db\ActiveRecord
 {
     /**
-     * {@inheritdoc}
+     * Returns the database table name.
+     *
+     * @return string Database table name.
      */
     public static function tableName(): string
     {
@@ -22,21 +28,50 @@ class UserCategory extends \yii\db\ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Returns validation rules for the model.
+     *
+     * @return array<int, array<string, mixed>> Validation rules.
      */
     public function rules(): array
     {
         return [
-            [['user_id', 'category_id'], 'required'],
-            [['user_id', 'category_id'], 'integer'],
-            [['user_id', 'category_id'], 'unique', 'targetAttribute' => ['user_id', 'category_id']],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
+            [
+                ['user_id', 'category_id'],
+                'required',
+            ],
+            [
+                ['user_id', 'category_id'],
+                'integer',
+            ],
+            [
+                ['user_id', 'category_id'],
+                'unique',
+                'targetAttribute' => [
+                    'user_id',
+                    'category_id',
+                ],
+            ],
+            [
+                ['category_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Category::class,
+                'targetAttribute' => ['category_id' => 'id'],
+            ],
+            [
+                ['user_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => User::class,
+                'targetAttribute' => ['user_id' => 'id'],
+            ],
         ];
     }
 
     /**
-     * {@inheritdoc}
+     * Returns human-readable labels for model attributes.
+     *
+     * @return array<string, string> Attribute labels.
      */
     public function attributeLabels(): array
     {
@@ -47,22 +82,28 @@ class UserCategory extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Category]].
+     * Returns the category relation.
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery Category relation.
      */
-    public function getCategory(): \yii\db\ActiveQuery
+    public function getCategory(): ActiveQuery
     {
-        return $this->hasOne(Category::class, ['id' => 'category_id']);
+        return $this->hasOne(
+            Category::class,
+            ['id' => 'category_id']
+        );
     }
 
     /**
-     * Gets query for [[User]].
+     * Returns the user relation.
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery User relation.
      */
-    public function getUser(): \yii\db\ActiveQuery
+    public function getUser(): ActiveQuery
     {
-        return $this->hasOne(User::class, ['id' => 'user_id']);
+        return $this->hasOne(
+            User::class,
+            ['id' => 'user_id']
+        );
     }
 }

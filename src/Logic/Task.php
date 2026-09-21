@@ -17,18 +17,23 @@ use TaskForce\Logic\Enums\TaskStatus;
 class Task
 {
     private int $customerId;
+
     private ?int $executorId;
+
     private TaskStatus $status;
 
     /**
      * Creates a task object.
      *
      * @param int $customerId ID of the task customer.
-     * @param int|null $executorId ID of the task executor, or null if no executor is assigned yet.
+     * @param int|null $executorId ID of the task executor.
      * @param TaskStatus $status Current task status.
      */
-    public function __construct(int $customerId, ?int $executorId = null, TaskStatus $status)
-    {
+    public function __construct(
+        int $customerId,
+        ?int $executorId,
+        TaskStatus $status
+    ) {
         $this->customerId = $customerId;
         $this->executorId = $executorId;
         $this->status = $status;
@@ -37,15 +42,15 @@ class Task
     /**
      * Returns the actions available to the current user.
      *
-     * Delegates the check for available actions to the TaskStateMachine object.
+     * @param TaskStateMachine $machine Task state machine.
+     * @param int $currentUserId Current user ID.
      *
-     * @param TaskStateMachine $machine Task state machine object.
-     * @param int $currentUserId ID of the current user.
-     *
-     * @return array List of available actions.
+     * @return array<int, TaskAction> Available actions.
      */
-    public function getAvailableActions(TaskStateMachine $machine, int $currentUserId): array
-    {
+    public function getAvailableActions(
+        TaskStateMachine $machine,
+        int $currentUserId
+    ): array {
         return $machine->getAllowedActions(
             $this->status,
             $this->customerId,
@@ -57,13 +62,18 @@ class Task
     /**
      * Applies an action to the task and changes its status.
      *
-     * The new status is determined by the TaskStateMachine object.
-     *
-     * @param TaskStateMachine $machine Task state machine object.
+     * @param TaskStateMachine $machine Task state machine.
      * @param TaskAction $action Action to perform.
+     *
+     * @return void
      */
-    public function apply(TaskStateMachine $machine, TaskAction $action): void
-    {
-        $this->status = $machine->transition($this->status, $action);
+    public function apply(
+        TaskStateMachine $machine,
+        TaskAction $action
+    ): void {
+        $this->status = $machine->transition(
+            $this->status,
+            $action
+        );
     }
 }

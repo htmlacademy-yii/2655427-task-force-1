@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
+use yii\widgets\LinkPager;
 
+/** @var yii\web\View $this */
 /** @var app\models\Task[] $tasks */
 /** @var app\models\Category[] $categories */
 /** @var app\models\TaskFilter $filter */
-
+/** @var yii\data\ActiveDataProvider $dataProvider */
 ?>
 
 <main class="main-content container">
@@ -20,7 +24,10 @@ use yii\widgets\ActiveForm;
             <div class="task-card">
                 <div class="header-task">
                     <a
-                        href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>"
+                        href="<?= Url::to([
+                            'tasks/view',
+                            'id' => $task->id,
+                        ]) ?>"
                         class="link link--block link--big"
                     >
                         <?= Html::encode($task->title) ?>
@@ -32,7 +39,11 @@ use yii\widgets\ActiveForm;
                 </div>
 
                 <p class="info-text">
-                    <?= Html::encode($task->created_at) ?>
+                    <?= Html::encode(
+                        Yii::$app->formatter->asRelativeTime(
+                            $task->created_at
+                        )
+                    ) ?>
                 </p>
 
                 <p class="task-text">
@@ -53,7 +64,10 @@ use yii\widgets\ActiveForm;
                     </p>
 
                     <a
-                        href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>"
+                        href="<?= Url::to([
+                            'tasks/view',
+                            'id' => $task->id,
+                        ]) ?>"
                         class="button button--black"
                     >
                         Смотреть Задание
@@ -62,30 +76,24 @@ use yii\widgets\ActiveForm;
             </div>
 
         <?php endforeach; ?>
-    </div>
 
-    <div class="pagination-wrapper">
-        <ul class="pagination-list">
-            <li class="pagination-item mark">
-                <a href="#" class="link link--page"></a>
-            </li>
-
-            <li class="pagination-item">
-                <a href="#" class="link link--page">1</a>
-            </li>
-
-            <li class="pagination-item pagination-item--active">
-                <a href="#" class="link link--page">2</a>
-            </li>
-
-            <li class="pagination-item">
-                <a href="#" class="link link--page">3</a>
-            </li>
-
-            <li class="pagination-item mark">
-                <a href="#" class="link link--page"></a>
-            </li>
-        </ul>
+        <div class="pagination-wrapper">
+            <?= LinkPager::widget([
+                'pagination' => $dataProvider->pagination,
+                'options' => [
+                    'class' => 'pagination-list',
+                ],
+                'linkOptions' => [
+                    'class' => 'link link--page',
+                ],
+                'pageCssClass' => 'pagination-item',
+                'activePageCssClass' => 'pagination-item--active',
+                'prevPageCssClass' => 'pagination-item mark',
+                'nextPageCssClass' => 'pagination-item mark',
+                'prevPageLabel' => '',
+                'nextPageLabel' => '',
+            ]) ?>
+        </div>
     </div>
 
     <div class="right-column">

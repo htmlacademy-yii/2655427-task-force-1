@@ -1,13 +1,13 @@
 <?php
 
-namespace app\models;
+declare(strict_types=1);
 
-use yii\base\Model;
+namespace app\models;
 
 /**
  * TaskFilter is the model for filtering tasks.
  */
-class TaskFilter extends Model
+class TaskFilter extends \yii\base\Model
 {
     /**
      * Selected task category IDs.

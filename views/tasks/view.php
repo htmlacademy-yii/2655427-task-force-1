@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use app\models\Feedback;
 use app\models\Response;
 use yii\helpers\Html;
@@ -22,7 +24,7 @@ $isExecutor = !$isGuest
     && $task->executor_id !== null
     && (int) $task->executor_id === (int) $currentUserId;
 
-$statusName = $task->status->name;
+$statusName = $task->status?->name ?? '';
 
 $isNew = $statusName === 'Новое';
 $isWork = $statusName === 'В работе';
@@ -250,8 +252,10 @@ if (!$isAuthor && !$isGuest) {
 
                         <?php if ($item->created_at): ?>
 
-                            <?= Yii::$app->formatter->asRelativeTime(
-                                $item->created_at
+                            <?= Html::encode(
+                                Yii::$app->formatter->asRelativeTime(
+                                    $item->created_at
+                                )
                             ) ?>
 
                         <?php endif; ?>
@@ -330,13 +334,15 @@ if (!$isAuthor && !$isGuest) {
 
             <dt>Категория</dt>
             <dd>
-                <?= Html::encode($task->category->name) ?>
+                <?= Html::encode($task->category?->name ?? '') ?>
             </dd>
 
             <dt>Дата публикации</dt>
             <dd>
-                <?= Yii::$app->formatter->asRelativeTime(
-                    $task->created_at
+                <?= Html::encode(
+                    Yii::$app->formatter->asRelativeTime(
+                        $task->created_at
+                    )
                 ) ?>
             </dd>
 
@@ -344,9 +350,11 @@ if (!$isAuthor && !$isGuest) {
 
                 <dt>Срок выполнения</dt>
                 <dd>
-                    <?= Yii::$app->formatter->asDate(
-                        $task->deadline,
-                        'php:d.m.Y'
+                    <?= Html::encode(
+                        Yii::$app->formatter->asDate(
+                            $task->deadline,
+                            'php:d.m.Y'
+                        )
                     ) ?>
                 </dd>
 
@@ -684,15 +692,22 @@ if (!$isAuthor && !$isGuest) {
 
 <?php endif; ?>
 
-<div class="overlay <?= $overlayClass ?>"></div>
+<div class="overlay <?= Html::encode($overlayClass) ?>"></div>
+
 <?php if (
     $task->latitude !== null
     && $task->longitude !== null
 ): ?>
 
     <?php
+    $yandexGeocoderApiKey = (string) (
+        Yii::$app->params['yandexGeocoderApiKey'] ?? ''
+    );
+
     $this->registerJsFile(
-        'https://api-maps.yandex.ru/2.1/?apikey=e666f398-c983-4bde-8f14-e3fec900592a&lang=ru_RU',
+        'https://api-maps.yandex.ru/2.1/?apikey='
+        . rawurlencode($yandexGeocoderApiKey)
+        . '&lang=ru_RU',
         [
             'position' => \yii\web\View::POS_HEAD,
         ]

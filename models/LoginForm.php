@@ -80,12 +80,20 @@ class LoginForm extends Model
      */
     public function validatePassword(string $attribute, array|null $params): void
     {
-        if (!$this->hasErrors()) {
-            $user = $this->getUser();
+        if ($this->hasErrors()) {
+            return;
+        }
 
-            if (!$user || !$user->password || !$this->security->validatePassword($this->password, $user->password)) {
-                $this->addError($attribute, 'Incorrect email or password.');
-            }
+        $user = $this->getUser();
+
+        if ($user === null || $user->password === null) {
+            $this->addError($attribute, 'Incorrect email or password.');
+
+            return;
+        }
+
+        if (!$this->security->validatePassword($this->password, $user->password)) {
+            $this->addError($attribute, 'Incorrect email or password.');
         }
     }
 
@@ -96,11 +104,17 @@ class LoginForm extends Model
      */
     public function login(): bool
     {
-        if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser());
+        if (!$this->validate()) {
+            return false;
         }
 
-        return false;
+        $user = $this->getUser();
+
+        if ($user === null) {
+            return false;
+        }
+
+        return Yii::$app->user->login($user);
     }
 
     /**
