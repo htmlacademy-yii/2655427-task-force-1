@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\models;
 
 use yii\db\ActiveQuery;
@@ -24,9 +26,9 @@ use yii\db\ActiveQuery;
  *
  * @property User $author
  * @property Category $category
- * @property City $city
- * @property User $executor
- * @property Feedback $feedback
+ * @property City|null $city
+ * @property User|null $executor
+ * @property Feedback|null $feedback
  * @property File[] $files
  * @property Response[] $responses
  * @property Status $status
@@ -143,7 +145,7 @@ class Task extends \yii\db\ActiveRecord
                 'format' => 'php:Y-m-d',
                 'min' => date('Y-m-d'),
                 'strictDateFormat' => true,
-                'tooSmall' => 'Дата должна быть больше текущей',
+                'tooSmall' => 'Дата не может быть раньше текущего дня',
             ],
 
             [

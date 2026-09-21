@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\models;
 
-use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "feedback".
@@ -22,7 +24,9 @@ use Yii;
 class Feedback extends \yii\db\ActiveRecord
 {
     /**
-     * {@inheritdoc}
+     * Returns the database table name.
+     *
+     * @return string Database table name.
      */
     public static function tableName(): string
     {
@@ -30,24 +34,81 @@ class Feedback extends \yii\db\ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Returns validation rules for feedback attributes.
+     *
+     * @return array<int, array<string, mixed>> Validation rules.
      */
     public function rules(): array
     {
         return [
-            [['created_at'], 'safe'],
-            [['author_id', 'executor_id', 'task_id', 'evaluation', 'comment'], 'required'],
-            [['author_id', 'executor_id', 'task_id', 'evaluation'], 'integer'],
-            [['comment'], 'string'],
-            [['task_id'], 'unique'],
-            [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['author_id' => 'id']],
-            [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::class, 'targetAttribute' => ['task_id' => 'id']],
-            [['executor_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['executor_id' => 'id']],
+            [
+                ['created_at'],
+                'safe',
+            ],
+
+            [
+                ['author_id', 'executor_id', 'task_id', 'evaluation', 'comment'],
+                'required',
+            ],
+
+            [
+                ['author_id', 'executor_id', 'task_id', 'evaluation'],
+                'integer',
+            ],
+
+            [
+                ['evaluation'],
+                'integer',
+                'min' => 1,
+                'max' => 5,
+            ],
+
+            [
+                ['comment'],
+                'string',
+            ],
+
+            [
+                ['task_id'],
+                'unique',
+            ],
+
+            [
+                ['author_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => User::class,
+                'targetAttribute' => [
+                    'author_id' => 'id',
+                ],
+            ],
+
+            [
+                ['task_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Task::class,
+                'targetAttribute' => [
+                    'task_id' => 'id',
+                ],
+            ],
+
+            [
+                ['executor_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => User::class,
+                'targetAttribute' => [
+                    'executor_id' => 'id',
+                ],
+            ],
         ];
     }
 
     /**
-     * {@inheritdoc}
+     * Returns human-readable labels for model attributes.
+     *
+     * @return array<string, string> Attribute labels.
      */
     public function attributeLabels(): array
     {
@@ -63,31 +124,31 @@ class Feedback extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Author]].
+     * Returns the feedback author relation.
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery Author relation.
      */
-    public function getAuthor(): \yii\db\ActiveQuery
+    public function getAuthor(): ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'author_id']);
     }
 
     /**
-     * Gets query for [[Executor]].
+     * Returns the feedback executor relation.
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery Executor relation.
      */
-    public function getExecutor(): \yii\db\ActiveQuery
+    public function getExecutor(): ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'executor_id']);
     }
 
     /**
-     * Gets query for [[Task]].
+     * Returns the feedback task relation.
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery Task relation.
      */
-    public function getTask(): \yii\db\ActiveQuery
+    public function getTask(): ActiveQuery
     {
         return $this->hasOne(Task::class, ['id' => 'task_id']);
     }

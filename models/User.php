@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\models;
 
 use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
 /**
@@ -12,7 +15,6 @@ use yii\web\IdentityInterface;
  * @property string $user_role
  * @property int $failed_tasks_count
  * @property int $hide_contacts
- * @property int|null $vk_id
  * @property int|null $github_id
  * @property string $created_at
  * @property string $email
@@ -23,71 +25,164 @@ use yii\web\IdentityInterface;
  * @property string|null $phone_number
  * @property string|null $birthday
  * @property string|null $telegram
+ * @property string|null $about
  *
  * @property Category[] $categories
  * @property City $city
  * @property Feedback[] $feedbacks
- * @property Feedback[] $feedbacks0
  * @property Response[] $responses
  * @property Task[] $tasks
- * @property Task[] $tasks0
- * @property Task[] $tasks1
  * @property UserCategory[] $userCategories
  */
-class User extends \yii\db\ActiveRecord implements IdentityInterface
+class User extends ActiveRecord implements IdentityInterface
 {
-    /**
-     * Customer role.
-     */
-    const USER_ROLE_CUSTOMER = 'customer';
+    public const USER_ROLE_CUSTOMER = 'customer';
+
+    public const USER_ROLE_EXECUTOR = 'executor';
 
     /**
-     * Executor role.
+     * Returns the database table name.
+     *
+     * @return string Database table name.
      */
-    const USER_ROLE_EXECUTOR = 'executor';
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'user';
     }
 
     /**
-     * {@inheritdoc}
+     * Returns validation rules for the model.
+     *
+     * @return array<int, array<string, mixed>> Validation rules.
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['vk_id', 'github_id', 'password', 'avatar_path', 'phone_number', 'birthday', 'telegram'], 'default', 'value' => null],
-            [['hide_contacts'], 'default', 'value' => 0],
-            [['user_role', 'email', 'name', 'city_id'], 'required'],
-            [['user_role'], 'string'],
-            [['failed_tasks_count', 'hide_contacts', 'vk_id', 'github_id', 'city_id'], 'integer'],
-            [['created_at', 'birthday'], 'safe'],
-            [['email', 'name'], 'string', 'max' => 128],
-            [['password', 'avatar_path'], 'string', 'max' => 255],
-            [['phone_number'], 'string', 'max' => 11],
-            [['telegram'], 'string', 'max' => 64],
-            ['user_role', 'in', 'range' => array_keys(self::optsUserRole())],
-            [['email'], 'unique'],
-            [['github_id'], 'unique'],
-            [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
+            [
+                ['about'],
+                'string',
+            ],
+
+            [
+                [
+                    'github_id',
+                    'password',
+                    'avatar_path',
+                    'phone_number',
+                    'birthday',
+                    'telegram',
+                ],
+                'default',
+                'value' => null,
+            ],
+
+            [
+                ['hide_contacts'],
+                'default',
+                'value' => 0,
+            ],
+
+            [
+                ['user_role', 'email', 'name', 'city_id'],
+                'required',
+            ],
+
+            [
+                ['user_role'],
+                'string',
+            ],
+
+            [
+                [
+                    'failed_tasks_count',
+                    'hide_contacts',
+                    'github_id',
+                    'city_id',
+                ],
+                'integer',
+            ],
+
+            [
+                ['created_at'],
+                'safe',
+            ],
+
+            [
+                ['email', 'name'],
+                'string',
+                'max' => 128,
+            ],
+
+            [
+                ['password', 'avatar_path'],
+                'string',
+                'max' => 255,
+            ],
+
+            [
+                ['phone_number'],
+                'match',
+                'pattern' => '/^\d{11}$/',
+                'message' => 'Номер телефона должен содержать 11 цифр.',
+            ],
+
+            [
+                ['telegram'],
+                'string',
+                'max' => 64,
+            ],
+
+            [
+                ['birthday'],
+                'date',
+                'format' => 'php:d.m.Y',
+                'strictDateFormat' => true,
+            ],
+
+            [
+                ['user_role'],
+                'in',
+                'range' => array_keys(self::optsUserRole()),
+            ],
+
+            [
+                ['email'],
+                'email',
+            ],
+
+            [
+                ['email'],
+                'unique',
+            ],
+
+            [
+                ['github_id'],
+                'unique',
+                'skipOnEmpty' => true,
+            ],
+
+            [
+                ['city_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => City::class,
+                'targetAttribute' => ['city_id' => 'id'],
+            ],
         ];
     }
 
     /**
-     * {@inheritdoc}
+     * Returns attribute labels.
+     *
+     * @return array<string, string> Attribute labels.
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
             'user_role' => 'User Role',
             'failed_tasks_count' => 'Failed Tasks Count',
             'hide_contacts' => 'Hide Contacts',
-            'vk_id' => 'Vk ID',
             'github_id' => 'GitHub ID',
             'created_at' => 'Created At',
             'email' => 'Email',
@@ -98,39 +193,40 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
             'phone_number' => 'Phone Number',
             'birthday' => 'Birthday',
             'telegram' => 'Telegram',
+            'about' => 'About',
         ];
     }
 
     /**
-     * Finds an identity by the specified ID.
+     * Finds a user by ID.
      *
      * @param int|string $id User ID.
      *
-     * @return static|null User instance or null if the user was not found.
+     * @return static|null User or null when not found.
      */
-    public static function findIdentity($id)
+    public static function findIdentity($id): ?self
     {
         return static::findOne(['id' => $id]);
     }
 
     /**
-     * Finds a user by email address.
+     * Finds a user by email.
      *
-     * @param string $email User email address.
+     * @param string $email User email.
      *
-     * @return static|null User instance or null if the user was not found.
+     * @return static|null User or null when not found.
      */
-    public static function findByEmail(string $email)
+    public static function findByEmail(string $email): ?self
     {
         return static::findOne(['email' => $email]);
     }
 
     /**
-     * Returns the unique identifier of the user.
+     * Returns the user ID.
      *
-     * @return int|string User ID.
+     * @return int User ID.
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -140,7 +236,7 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      *
      * @return string Authentication key.
      */
-    public function getAuthKey()
+    public function getAuthKey(): string
     {
         return (string) $this->id;
     }
@@ -152,122 +248,93 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      *
      * @return bool Whether the authentication key is valid.
      */
-    public function validateAuthKey($authKey)
+    public function validateAuthKey($authKey): bool
     {
         return $this->getAuthKey() === $authKey;
     }
 
     /**
-     * Finds an identity by the specified access token.
+     * Finds a user by access token.
      *
      * @param string $token Access token.
-     * @param string|null $type Token type.
+     * @param string|null $type Authentication type.
      *
-     * @return static|null User instance or null if the user was not found.
+     * @return static|null User or null when not found.
      */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
+    public static function findIdentityByAccessToken(
+        $token,
+        $type = null
+    ): ?self {
         return null;
     }
 
     /**
-     * Gets query for [[Categories]].
+     * Returns user's categories.
      *
-     * @return ActiveQuery
+     * @return ActiveQuery Category relation.
      */
-    public function getCategories()
+    public function getCategories(): ActiveQuery
     {
         return $this->hasMany(Category::class, ['id' => 'category_id'])
             ->viaTable('user_category', ['user_id' => 'id']);
     }
 
     /**
-     * Gets query for [[City]].
+     * Returns user's city.
      *
-     * @return ActiveQuery
+     * @return ActiveQuery City relation.
      */
-    public function getCity()
+    public function getCity(): ActiveQuery
     {
         return $this->hasOne(City::class, ['id' => 'city_id']);
     }
 
     /**
-     * Gets query for [[Feedbacks]].
+     * Returns feedbacks authored by the user.
      *
-     * @return ActiveQuery
+     * @return ActiveQuery Feedback relation.
      */
-    public function getFeedbacks()
+    public function getFeedbacks(): ActiveQuery
     {
         return $this->hasMany(Feedback::class, ['author_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Feedbacks0]].
+     * Returns responses created by the user.
      *
-     * @return ActiveQuery
+     * @return ActiveQuery Response relation.
      */
-    public function getFeedbacks0()
-    {
-        return $this->hasMany(Feedback::class, ['executor_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[Responses]].
-     *
-     * @return ActiveQuery
-     */
-    public function getResponses()
+    public function getResponses(): ActiveQuery
     {
         return $this->hasMany(Response::class, ['user_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Tasks]].
+     * Returns tasks authored by the user.
      *
-     * @return ActiveQuery
+     * @return ActiveQuery Task relation.
      */
-    public function getTasks()
+    public function getTasks(): ActiveQuery
     {
         return $this->hasMany(Task::class, ['author_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Tasks0]].
+     * Returns user's category relations.
      *
-     * @return ActiveQuery
+     * @return ActiveQuery UserCategory relation.
      */
-    public function getTasks0()
-    {
-        return $this->hasMany(Task::class, ['executor_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[Tasks1]].
-     *
-     * @return ActiveQuery
-     */
-    public function getTasks1()
-    {
-        return $this->hasMany(Task::class, ['id' => 'task_id'])
-            ->viaTable('response', ['user_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[UserCategories]].
-     *
-     * @return ActiveQuery
-     */
-    public function getUserCategories()
+    public function getUserCategories(): ActiveQuery
     {
         return $this->hasMany(UserCategory::class, ['user_id' => 'id']);
     }
 
     /**
-     * Returns available user roles and their labels.
+     * Returns available user roles.
      *
-     * @return string[]
+     * @return array<string, string> User roles.
      */
-    public static function optsUserRole()
+    public static function optsUserRole(): array
     {
         return [
             self::USER_ROLE_CUSTOMER => 'customer',
@@ -276,41 +343,45 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Returns the current user role label.
+     * Returns the display name of the user's role.
      *
-     * @return string
+     * @return string Display name of the role.
      */
-    public function displayUserRole()
+    public function displayUserRole(): string
     {
-        return self::optsUserRole()[$this->user_role];
+        $roles = self::optsUserRole();
+
+        return $roles[$this->user_role] ?? '';
     }
 
     /**
-     * Checks whether the user has the customer role.
+     * Checks whether the user is a customer.
      *
-     * @return bool
+     * @return bool True when the user is a customer.
      */
-    public function isUserRoleCustomer()
+    public function isUserRoleCustomer(): bool
     {
         return $this->user_role === self::USER_ROLE_CUSTOMER;
     }
 
     /**
-     * Sets the user role.
+     * Sets the user's role.
      *
      * @param string $role User role.
+     *
+     * @return void
      */
-    public function setRole(string $role)
+    public function setRole(string $role): void
     {
         $this->user_role = $role;
     }
 
     /**
-     * Checks whether the user has the executor role.
+     * Checks whether the user is an executor.
      *
-     * @return bool
+     * @return bool True when the user is an executor.
      */
-    public function isUserRoleExecutor()
+    public function isUserRoleExecutor(): bool
     {
         return $this->user_role === self::USER_ROLE_EXECUTOR;
     }

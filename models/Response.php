@@ -1,23 +1,51 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\models;
 
+use yii\db\ActiveQuery;
+
+/**
+ * This is the model class for table "response".
+ *
+ * @property int $id
+ * @property string $created_at
+ * @property int $user_id
+ * @property int $task_id
+ * @property int|null $price
+ * @property string|null $comment
+ * @property string $status
+ *
+ * @property Task $task
+ * @property User $user
+ */
 class Response extends \yii\db\ActiveRecord
 {
-    const STATUS_NEW = 'new';
-    const STATUS_ACCEPTED = 'accepted';
-    const STATUS_REJECTED = 'rejected';
+    public const STATUS_NEW = 'new';
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_REJECTED = 'rejected';
 
+    /**
+     * Returns the database table name.
+     *
+     * @return string Database table name.
+     */
     public static function tableName(): string
     {
         return 'response';
     }
 
+    /**
+     * Returns validation rules for response attributes.
+     *
+     * @return array<int, array<string, mixed>> Validation rules.
+     */
     public function rules(): array
     {
         return [
             [
-                ['comment'],
+                ['comment', 'price'],
                 'default',
                 'value' => null,
             ],
@@ -36,12 +64,6 @@ class Response extends \yii\db\ActiveRecord
             [
                 ['user_id', 'task_id'],
                 'required',
-            ],
-
-            [
-                ['price'],
-                'required',
-                'message' => 'Укажите стоимость работы.',
             ],
 
             [
@@ -98,6 +120,11 @@ class Response extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * Returns human-readable labels for model attributes.
+     *
+     * @return array<string, string> Attribute labels.
+     */
     public function attributeLabels(): array
     {
         return [
@@ -111,7 +138,12 @@ class Response extends \yii\db\ActiveRecord
         ];
     }
 
-    public function getTask(): \yii\db\ActiveQuery
+    /**
+     * Returns the task relation.
+     *
+     * @return ActiveQuery Task relation.
+     */
+    public function getTask(): ActiveQuery
     {
         return $this->hasOne(
             Task::class,
@@ -119,7 +151,12 @@ class Response extends \yii\db\ActiveRecord
         );
     }
 
-    public function getUser(): \yii\db\ActiveQuery
+    /**
+     * Returns the user relation.
+     *
+     * @return ActiveQuery User relation.
+     */
+    public function getUser(): ActiveQuery
     {
         return $this->hasOne(
             User::class,
@@ -127,6 +164,11 @@ class Response extends \yii\db\ActiveRecord
         );
     }
 
+    /**
+     * Returns available response statuses.
+     *
+     * @return array<string, string> Response statuses.
+     */
     public static function optsStatus(): array
     {
         return [
@@ -136,36 +178,71 @@ class Response extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * Returns the display name of the response status.
+     *
+     * @return string Response status.
+     */
     public function displayStatus(): string
     {
-        return self::optsStatus()[$this->status];
+        return self::optsStatus()[$this->status] ?? $this->status;
     }
 
+    /**
+     * Checks whether the response has a new status.
+     *
+     * @return bool True when the response is new.
+     */
     public function isStatusNew(): bool
     {
         return $this->status === self::STATUS_NEW;
     }
 
+    /**
+     * Sets the response status to new.
+     *
+     * @return void
+     */
     public function setStatusToNew(): void
     {
         $this->status = self::STATUS_NEW;
     }
 
+    /**
+     * Checks whether the response has an accepted status.
+     *
+     * @return bool True when the response is accepted.
+     */
     public function isStatusAccepted(): bool
     {
         return $this->status === self::STATUS_ACCEPTED;
     }
 
+    /**
+     * Sets the response status to accepted.
+     *
+     * @return void
+     */
     public function setStatusToAccepted(): void
     {
         $this->status = self::STATUS_ACCEPTED;
     }
 
+    /**
+     * Checks whether the response has a rejected status.
+     *
+     * @return bool True when the response is rejected.
+     */
     public function isStatusRejected(): bool
     {
         return $this->status === self::STATUS_REJECTED;
     }
 
+    /**
+     * Sets the response status to rejected.
+     *
+     * @return void
+     */
     public function setStatusToRejected(): void
     {
         $this->status = self::STATUS_REJECTED;

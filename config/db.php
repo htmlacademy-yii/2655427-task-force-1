@@ -1,14 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'class' => \yii\db\Connection::class,
     'dsn' => 'mysql:host=localhost;dbname=TaskForce',
     'username' => 'root',
     'password' => '1234',
     'charset' => 'utf8mb4',
-
-    // Schema cache options (for production environment)
-    //'enableSchemaCache' => true,
-    //'schemaCacheDuration' => 60,
-    //'schemaCache' => 'cache',
 ];

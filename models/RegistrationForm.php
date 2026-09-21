@@ -1,85 +1,132 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\models;
 
 use yii\base\Model;
 
 /**
- * RegistrationForm is the model behind the user registration form.
+ * Registration form model.
  */
 class RegistrationForm extends Model
 {
     /**
      * User's name.
      *
-     * @var string
+     * @var string|null
      */
     public $name;
 
     /**
      * User's email address.
      *
-     * @var string
+     * @var string|null
      */
     public $email;
 
     /**
      * User's city ID.
      *
-     * @var int
+     * @var int|string|null
      */
     public $city_id;
 
     /**
      * User's password.
      *
-     * @var string
+     * @var string|null
      */
     public $password;
 
     /**
      * Password confirmation.
      *
-     * @var string
+     * @var string|null
      */
     public $password_repeat;
 
     /**
      * Whether the user wants to respond to tasks.
      *
-     * @var bool
+     * @var bool|null
      */
     public $is_executor;
 
     /**
-     * Returns the validation rules.
+     * Returns validation rules.
      *
-     * @return array
+     * @return array<int, array<string, mixed>> Validation rules.
      */
     public function rules(): array
     {
         return [
-            [['name', 'email', 'city_id', 'password', 'password_repeat'], 'required', 'message' => 'Заполните это поле.'],
-            ['name', 'string', 'max' => 128],
+            [
+                [
+                    'name',
+                    'email',
+                    'city_id',
+                    'password',
+                    'password_repeat',
+                ],
+                'required',
+                'message' => 'Заполните это поле.',
+            ],
 
-            ['email', 'email'],
-            ['email', 'unique', 'targetClass' => User::class, 'targetAttribute' => 'email'],
+            [
+                ['name'],
+                'string',
+                'max' => 128,
+            ],
 
-            ['city_id', 'integer'],
-            ['city_id', 'exist', 'targetClass' => City::class, 'targetAttribute' => 'id'],
+            [
+                ['email'],
+                'email',
+            ],
 
-            ['password', 'string', 'min' => 6, 'max' => 255],
+            [
+                ['email'],
+                'unique',
+                'targetClass' => User::class,
+                'targetAttribute' => 'email',
+            ],
 
-            ['password_repeat', 'compare', 'compareAttribute' => 'password'],
+            [
+                ['city_id'],
+                'integer',
+            ],
 
-            ['is_executor', 'boolean'],
+            [
+                ['city_id'],
+                'exist',
+                'targetClass' => City::class,
+                'targetAttribute' => ['city_id' => 'id'],
+            ],
+
+            [
+                ['password'],
+                'string',
+                'min' => 6,
+                'max' => 255,
+            ],
+
+            [
+                ['password_repeat'],
+                'compare',
+                'compareAttribute' => 'password',
+            ],
+
+            [
+                ['is_executor'],
+                'boolean',
+            ],
         ];
     }
 
     /**
      * Returns customized attribute labels.
      *
-     * @return array
+     * @return array<string, string> Attribute labels.
      */
     public function attributeLabels(): array
     {

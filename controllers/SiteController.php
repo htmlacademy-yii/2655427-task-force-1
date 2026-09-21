@@ -26,6 +26,15 @@ use yii\web\Response;
  */
 class SiteController extends Controller
 {
+    /**
+     * SiteController constructor.
+     *
+     * @param string $id Controller ID.
+     * @param Module $module Parent module.
+     * @param MailerInterface $mailer Mailer component.
+     * @param Security $security Security component.
+     * @param array $config Controller configuration.
+     */
     public function __construct(
         string $id,
         Module $module,
@@ -119,7 +128,10 @@ class SiteController extends Controller
         if ($this->request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
 
-            if ($model->load($this->request->post(), 'LoginForm') && $model->login()) {
+            if (
+                $model->load($this->request->post(), 'LoginForm')
+                && $model->login()
+            ) {
                 return [
                     'success' => true,
                 ];
@@ -131,7 +143,10 @@ class SiteController extends Controller
             ];
         }
 
-        if ($model->load($this->request->post()) && $model->login()) {
+        if (
+            $model->load($this->request->post())
+            && $model->login()
+        ) {
             return $this->goBack();
         }
 
@@ -143,7 +158,7 @@ class SiteController extends Controller
     }
 
     /**
-     * Handles successful authentication through an external provider.
+     * Handles successful authentication through GitHub.
      *
      * @param ClientInterface $client Authentication client.
      *
@@ -152,6 +167,10 @@ class SiteController extends Controller
     public function onAuthSuccess(ClientInterface $client): void
     {
         $attributes = $client->getUserAttributes();
+
+        if (!isset($attributes['id'])) {
+            return;
+        }
 
         $githubId = (int) $attributes['id'];
         $email = $attributes['email'] ?? null;
@@ -163,30 +182,69 @@ class SiteController extends Controller
 
             if ($user !== null) {
                 $user->github_id = $githubId;
-                $user->save(false);
+
+                if (!$user->save()) {
+                    return;
+                }
             }
         }
 
         if ($user === null) {
-            $city = City::findOne(['name' => $attributes['location'] ?? '']);
-
-            if ($city === null) {
-                $city = City::find()->one();
-            }
-
-            $user = new User();
-            $user->github_id = $githubId;
-            $user->email = $email ?: $githubId . '@github.local';
-            $user->name = $attributes['name'] ?? $attributes['login'];
-            $user->city_id = $city->id;
-            $user->user_role = User::USER_ROLE_CUSTOMER;
-            $user->avatar_path = $attributes['avatar_url'] ?? null;
-            $user->save(false);
+            $user = $this->createGithubUser(
+                $attributes,
+                $githubId,
+                $email
+            );
         }
 
-        Yii::$app->user->login($user);
+        if ($user === null) {
+            return;
+        }
 
-        $this->redirect(['tasks/index']);
+        if (!Yii::$app->user->login($user)) {
+            return;
+        }
+    }
+
+    /**
+     * Creates a user from GitHub account data.
+     *
+     * @param array $attributes GitHub user attributes.
+     * @param int $githubId GitHub user ID.
+     * @param string|null $email GitHub email address.
+     *
+     * @return User|null
+     */
+    private function createGithubUser(
+        array $attributes,
+        int $githubId,
+        ?string $email
+    ): ?User {
+        $name = $attributes['name'] ?? $attributes['login'] ?? null;
+
+        if ($name === null) {
+            return null;
+        }
+
+        $cityName = $attributes['location'] ?? '';
+        $city = City::findOne(['name' => $cityName]) ?? City::find()->one();
+
+        if ($city === null) {
+            return null;
+        }
+
+        $user = new User();
+        $user->github_id = $githubId;
+        $user->email = $email ?? $githubId . '@github.local';
+        $user->name = $name;
+        $user->city_id = $city->id;
+        $user->setRole(User::USER_ROLE_CUSTOMER);
+
+        if (!$user->save()) {
+            return null;
+        }
+
+        return $user;
     }
 
     /**
@@ -211,12 +269,13 @@ class SiteController extends Controller
         $model = new ContactForm();
 
         if ($model->load($this->request->post()) && $model->validate()) {
-            if ($this->mailer->compose()
-                ->setTo('admin@example.com')
-                ->setFrom([$model->email => $model->name])
-                ->setSubject($model->subject)
-                ->setTextBody($model->body)
-                ->send()
+            if (
+                $this->mailer->compose()
+                    ->setTo('admin@example.com')
+                    ->setFrom([$model->email => $model->name])
+                    ->setSubject($model->subject)
+                    ->setTextBody($model->body)
+                    ->send()
             ) {
                 Yii::$app->session->setFlash(
                     'contactFormSubmitted',

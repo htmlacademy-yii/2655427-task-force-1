@@ -20,11 +20,11 @@ enum TaskAction: string
     /**
      * Returns the task statuses in which this action is available.
      *
-     * @return array List of allowed task statuses.
+     * @return array<int, TaskStatus> Allowed task statuses.
      */
     public function availableInStatuses(): array
     {
-        return match($this) {
+        return match ($this) {
             self::Respond => [TaskStatus::New],
             self::Cancel => [TaskStatus::New],
             self::Start => [TaskStatus::New],
@@ -36,7 +36,7 @@ enum TaskAction: string
     /**
      * Returns the status the task transitions to after performing this action.
      *
-     * @return TaskStatus The resulting task status.
+     * @return TaskStatus Resulting task status.
      *
      * @throws TaskException If the action does not change the task status.
      */
@@ -47,7 +47,9 @@ enum TaskAction: string
             self::Start => TaskStatus::Work,
             self::Finish => TaskStatus::Done,
             self::Refuse => TaskStatus::Failed,
-            self::Respond => throw new TaskException('Действие Respond не изменяет статус задания.'),
+            self::Respond => throw new TaskException(
+                'Действие Respond не изменяет статус задания.'
+            ),
         };
     }
 
@@ -57,21 +59,22 @@ enum TaskAction: string
      * @param int $customerId ID of the task customer.
      * @param int|null $executorId ID of the task executor.
      * @param int $currentUserId ID of the current user.
-     * @param TaskStatus $currentStatus Current task status.
      *
      * @return bool Whether the action is available to the current user.
      */
     public function checkRights(
         int $customerId,
         ?int $executorId,
-        int $currentUserId,
-        TaskStatus $currentStatus
+        int $currentUserId
     ): bool {
         return match ($this) {
-            self::Respond => $customerId !== $currentUserId && $executorId === null,
+            self::Respond => $customerId !== $currentUserId
+                && $executorId === null,
             self::Cancel => $customerId === $currentUserId,
-            self::Start => $customerId === $currentUserId && $executorId === null,
-            self::Finish => $customerId === $currentUserId && $executorId !== null,
+            self::Start => $customerId === $currentUserId
+                && $executorId === null,
+            self::Finish => $customerId === $currentUserId
+                && $executorId !== null,
             self::Refuse => $executorId === $currentUserId,
         };
     }

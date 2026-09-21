@@ -1,11 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 use yii\db\Migration;
 
+/**
+ * Adds GitHub ID to the user table.
+ */
 class m260920_123231_add_github_id_to_user extends Migration
 {
     /**
-     * {@inheritdoc}
+     * Adds the GitHub ID column and unique index.
+     *
+     * @return void
      */
     public function safeUp(): void
     {
@@ -24,7 +31,9 @@ class m260920_123231_add_github_id_to_user extends Migration
     }
 
     /**
-     * {@inheritdoc}
+     * Removes the GitHub ID column and unique index.
+     *
+     * @return void
      */
     public function safeDown(): void
     {

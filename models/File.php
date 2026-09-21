@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\models;
 
-use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "file".
@@ -17,7 +19,9 @@ use Yii;
 class File extends \yii\db\ActiveRecord
 {
     /**
-     * {@inheritdoc}
+     * Returns the database table name.
+     *
+     * @return string Database table name.
      */
     public static function tableName(): string
     {
@@ -25,21 +29,44 @@ class File extends \yii\db\ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Returns validation rules for the model.
+     *
+     * @return array<int, array<string, mixed>> Validation rules.
      */
     public function rules(): array
     {
         return [
-            [['task_id', 'file_path'], 'required'],
-            [['task_id'], 'integer'],
-            [['created_at'], 'safe'],
-            [['file_path'], 'string', 'max' => 255],
-            [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::class, 'targetAttribute' => ['task_id' => 'id']],
+            [
+                ['task_id', 'file_path'],
+                'required',
+            ],
+            [
+                ['task_id'],
+                'integer',
+            ],
+            [
+                ['created_at'],
+                'safe',
+            ],
+            [
+                ['file_path'],
+                'string',
+                'max' => 255,
+            ],
+            [
+                ['task_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Task::class,
+                'targetAttribute' => ['task_id' => 'id'],
+            ],
         ];
     }
 
     /**
-     * {@inheritdoc}
+     * Returns human-readable labels for model attributes.
+     *
+     * @return array<string, string> Attribute labels.
      */
     public function attributeLabels(): array
     {
@@ -52,11 +79,11 @@ class File extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Task]].
+     * Returns the task relation.
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery Task relation.
      */
-    public function getTask(): \yii\db\ActiveQuery
+    public function getTask(): ActiveQuery
     {
         return $this->hasOne(Task::class, ['id' => 'task_id']);
     }
