@@ -6,7 +6,7 @@ namespace app\controllers;
 
 use app\models\AccountSettingsForm;
 use app\models\Category;
-use app\models\UserCategory;
+use app\services\ProfileService;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -75,75 +75,12 @@ class ProfileController extends Controller
             );
 
             if ($model->validate()) {
-                $user->name = $model->name;
-                $user->email = $model->email;
-                $user->birthday = $model->birthday !== ''
-                    ? \DateTimeImmutable::createFromFormat(
-                        'd.m.Y',
-                        $model->birthday
-                    )->format('Y-m-d')
-                    : null;
-                $user->phone_number = $model->phone_number !== ''
-                    ? $model->phone_number
-                    : null;
-                $user->telegram = $model->telegram !== ''
-                    ? $model->telegram
-                    : null;
-                $user->hide_contacts = $model->hide_contacts ? 1 : 0;
+                $service = new ProfileService();
 
-                if ($model->shouldChangePassword()) {
-                    $user->password = Yii::$app->security
-                        ->generatePasswordHash(
-                            $model->new_password
-                        );
-                }
-
-                if ($model->avatar !== null) {
-                    $uploadPath = Yii::getAlias(
-                        '@webroot/uploads/avatars'
-                    );
-
-                    if (!is_dir($uploadPath)) {
-                        mkdir($uploadPath, 0775, true);
-                    }
-
-                    $fileName = Yii::$app->security
-                        ->generateRandomString(32)
-                        . '.'
-                        . $model->avatar->extension;
-
-                    $filePath = $uploadPath
-                        . DIRECTORY_SEPARATOR
-                        . $fileName;
-
-                    if (!$model->avatar->saveAs($filePath)) {
-                        $model->addError(
-                            'avatar',
-                            'Не удалось сохранить аватар.'
-                        );
-                    } else {
-                        $user->avatar_path = '/uploads/avatars/'
-                            . $fileName;
-                    }
-                }
-
-                if (!$model->hasErrors() && $user->save()) {
-                    UserCategory::deleteAll([
-                        'user_id' => $user->id,
+                if ($service->update($user, $model)) {
+                    return $this->redirect([
+                        'profile/index',
                     ]);
-
-                    foreach ($model->categories as $categoryId) {
-                        $userCategory = new UserCategory();
-                        $userCategory->user_id = $user->id;
-                        $userCategory->category_id = (int) $categoryId;
-                        $userCategory->save();
-                    }
-
-                    return $this->redirect(['profile/index']);
-                }
-
-                if ($user->hasErrors()) {
-                    $model->addErrors($user->getErrors());
                 }
             }
         }

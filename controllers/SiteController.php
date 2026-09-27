@@ -207,47 +207,6 @@ class SiteController extends Controller
     }
 
     /**
-     * Creates a user from GitHub account data.
-     *
-     * @param array $attributes GitHub user attributes.
-     * @param int $githubId GitHub user ID.
-     * @param string|null $email GitHub email address.
-     *
-     * @return User|null
-     */
-    private function createGithubUser(
-        array $attributes,
-        int $githubId,
-        ?string $email
-    ): ?User {
-        $name = $attributes['name'] ?? $attributes['login'] ?? null;
-
-        if ($name === null) {
-            return null;
-        }
-
-        $cityName = $attributes['location'] ?? '';
-        $city = City::findOne(['name' => $cityName]) ?? City::find()->one();
-
-        if ($city === null) {
-            return null;
-        }
-
-        $user = new User();
-        $user->github_id = $githubId;
-        $user->email = $email ?? $githubId . '@github.local';
-        $user->name = $name;
-        $user->city_id = $city->id;
-        $user->setRole(User::USER_ROLE_CUSTOMER);
-
-        if (!$user->save()) {
-            return null;
-        }
-
-        return $user;
-    }
-
-    /**
      * Logs the current user out.
      *
      * @return Response
@@ -299,5 +258,45 @@ class SiteController extends Controller
     public function actionAbout(): string
     {
         return $this->render('about');
+    }
+    /**
+     * Creates a user from GitHub account data.
+     *
+     * @param array $attributes GitHub user attributes.
+     * @param int $githubId GitHub user ID.
+     * @param string|null $email GitHub email address.
+     *
+     * @return User|null
+     */
+    private function createGithubUser(
+        array $attributes,
+        int $githubId,
+        ?string $email
+    ): ?User {
+        $name = $attributes['name'] ?? $attributes['login'] ?? null;
+
+        if ($name === null) {
+            return null;
+        }
+
+        $cityName = $attributes['location'] ?? '';
+        $city = City::findOne(['name' => $cityName]) ?? City::find()->one();
+
+        if ($city === null) {
+            return null;
+        }
+
+        $user = new User();
+        $user->github_id = $githubId;
+        $user->email = $email ?? $githubId . '@github.local';
+        $user->name = $name;
+        $user->city_id = $city->id;
+        $user->setRole(User::USER_ROLE_CUSTOMER);
+
+        if (!$user->save()) {
+            return null;
+        }
+
+        return $user;
     }
 }

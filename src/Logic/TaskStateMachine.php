@@ -9,17 +9,12 @@ use TaskForce\Logic\Enums\TaskStatus;
 use TaskForce\Logic\Exceptions\TaskException;
 
 /**
- * Manages task states.
- *
- * Determines:
- * - actions available for the current status;
- * - actions allowed for a specific user;
- * - task transitions between statuses.
+ * Manages task states and available actions.
  */
 class TaskStateMachine
 {
     /**
-     * Returns the list of actions available for the specified status.
+     * Returns all actions available for the given task status.
      *
      * @param TaskStatus $status Current task status.
      *
@@ -40,10 +35,10 @@ class TaskStateMachine
     }
 
     /**
-     * Returns the list of actions available to the current user.
+     * Returns actions allowed for the current user.
      *
      * @param TaskStatus $status Current task status.
-     * @param int $customerId Customer ID.
+     * @param int $customerId Task customer ID.
      * @param int $currentUserId Current user ID.
      * @param int|null $executorId Task executor ID.
      *
@@ -74,14 +69,67 @@ class TaskStateMachine
     }
 
     /**
-     * Transitions the task to a new status.
+     * Checks whether a user can perform an action.
+     *
+     * @param TaskStatus $status Current task status.
+     * @param TaskAction $action Requested action.
+     * @param int $customerId Task customer ID.
+     * @param int $currentUserId Current user ID.
+     * @param int|null $executorId Task executor ID.
+     *
+     * @return bool Whether the action is allowed.
+     */
+    public function canPerformAction(
+        TaskStatus $status,
+        TaskAction $action,
+        int $customerId,
+        int $currentUserId,
+        ?int $executorId
+    ): bool {
+        return in_array(
+            $action,
+            $this->getAllowedActions(
+                $status,
+                $customerId,
+                $currentUserId,
+                $executorId
+            ),
+            true
+        );
+    }
+
+    /**
+     * Converts a database status name to a task status enum.
+     *
+     * @param string $name Database status name.
+     *
+     * @return TaskStatus Task status enum.
+     *
+     * @throws TaskException If the status is unknown.
+     */
+    public function getStatusByName(string $name): TaskStatus
+    {
+        return match ($name) {
+            'Новое' => TaskStatus::New,
+            'Отменено' => TaskStatus::Cancel,
+            'В работе' => TaskStatus::Work,
+            'Выполнено' => TaskStatus::Done,
+            'Провалено' => TaskStatus::Failed,
+            default => throw new TaskException(
+                "Неизвестный статус задания: {$name}."
+            ),
+        };
+    }
+
+    /**
+     * Returns the resulting status for an action.
      *
      * @param TaskStatus $current Current task status.
-     * @param TaskAction $action Action to perform.
+     * @param TaskAction $action Requested action.
      *
-     * @return TaskStatus New task status.
+     * @return TaskStatus Resulting task status.
      *
-     * @throws TaskException If the action is not available.
+     * @throws TaskException If the action is unavailable.
      */
     public function transition(
         TaskStatus $current,

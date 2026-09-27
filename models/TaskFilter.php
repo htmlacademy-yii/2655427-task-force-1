@@ -4,29 +4,25 @@ declare(strict_types=1);
 
 namespace app\models;
 
+use yii\base\Model;
+
 /**
  * TaskFilter is the model for filtering tasks.
  */
-class TaskFilter extends \yii\base\Model
+class TaskFilter extends Model
 {
     /**
      * Selected task category IDs.
-     *
-     * @var array|null
      */
-    public $categories;
+    public ?array $categories = null;
 
     /**
      * Whether to show only tasks without a performer.
-     *
-     * @var bool|null
      */
-    public $without_performer;
+    public ?bool $without_performer = null;
 
     /**
      * Period for filtering tasks in hours.
-     *
-     * @var int|null
      */
-    public $period;
+    public ?int $period = null;
 }

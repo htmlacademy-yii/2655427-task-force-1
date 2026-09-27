@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     actionButtons.forEach(function (el) {
         el.addEventListener('click', function (evt) {
+            evt.preventDefault();
+
             const modalType = evt.currentTarget.dataset.action;
             const modal = document.querySelector('.pop-up--' + modalType);
 

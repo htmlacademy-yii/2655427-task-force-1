@@ -61,10 +61,6 @@ $overlayClass = $response->hasErrors()
     ? 'db'
     : '';
 
-/*
- * Заказчик видит все отклики.
- * Обычный пользователь видит только собственный отклик.
- */
 $responses = $task->responses;
 
 if (!$isAuthor && !$isGuest) {
@@ -196,7 +192,7 @@ if (!$isAuthor && !$isGuest) {
                 <div class="feedback-wrapper">
 
                     <a
-                        href="#"
+                        href="<?= Url::to(['/user/view', 'id' => $item->user_id]) ?>"
                         class="link link--block link--big"
                     >
                         <?= Html::encode(
