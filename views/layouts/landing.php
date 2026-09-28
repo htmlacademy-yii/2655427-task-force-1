@@ -9,8 +9,6 @@ declare(strict_types=1);
  * @var string $content
  */
 
-use Yii;
-
 $this->beginPage();
 ?>
 <!DOCTYPE html>

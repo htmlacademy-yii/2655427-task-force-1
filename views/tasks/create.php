@@ -14,6 +14,8 @@ use yii\widgets\ActiveForm;
  */
 
 $this->title = 'Публикация нового задания';
+$this->params['mainContentClass'] = 'main-content--center';
+
 ?>
 
 <div class="add-task-form regular-form">

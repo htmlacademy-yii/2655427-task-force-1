@@ -320,4 +320,11 @@ class AccountSettingsForm extends Model
     {
         return $this->old_password !== '';
     }
+
+    /**
+     * User's information about themselves.
+     *
+     * @var string
+     */
+    public string $about = '';
 }

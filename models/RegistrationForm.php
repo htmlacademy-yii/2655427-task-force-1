@@ -13,45 +13,33 @@ class RegistrationForm extends Model
 {
     /**
      * User's name.
-     *
-     * @var string|null
      */
-    public $name;
+    public ?string $name = null;
 
     /**
      * User's email address.
-     *
-     * @var string|null
      */
-    public $email;
+    public ?string $email = null;
 
     /**
      * User's city ID.
-     *
-     * @var int|string|null
      */
-    public $city_id;
+    public int|string|null $city_id = null;
 
     /**
      * User's password.
-     *
-     * @var string|null
      */
-    public $password;
+    public ?string $password = null;
 
     /**
      * Password confirmation.
-     *
-     * @var string|null
      */
-    public $password_repeat;
+    public ?string $password_repeat = null;
 
     /**
      * Whether the user wants to respond to tasks.
-     *
-     * @var bool|null
      */
-    public $is_executor;
+    public ?bool $is_executor = null;
 
     /**
      * Returns validation rules.

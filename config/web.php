@@ -37,6 +37,11 @@ $config = [
                 ],
             ],
         ],
+        'urlManager' => [
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'enableStrictParsing' => false,
+        ],
         'request' => [
             'cookieValidationKey' => 'URiySkQ38cKplw1A0O-pjVxdEsmTNZ7d',
         ],

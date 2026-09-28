@@ -34,15 +34,15 @@ $sections = $isExecutor
     ]
     : [
         'new' => [
-            'title' => 'Новые задания',
+            'title' => 'Новые',
             'tasks' => $newTasks,
         ],
         'work' => [
-            'title' => 'Задания в процессе',
+            'title' => 'В процессе',
             'tasks' => $inProgressTasks,
         ],
         'closed' => [
-            'title' => 'Закрытые задания',
+            'title' => 'Закрытые',
             'tasks' => $closedTasks,
         ],
     ];

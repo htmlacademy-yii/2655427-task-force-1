@@ -25,9 +25,6 @@ class AppAsset extends AssetBundle
 {
     public $basePath = '@webroot';
     public $baseUrl = '@web';
-    public $css = [
-        'css/site.css',
-    ];
     public $js = [
         'js/color-mode.js',
         'js/main.js',
@@ -36,7 +33,6 @@ class AppAsset extends AssetBundle
         'position' => View::POS_END,
     ];
     public $depends = [
-        YiiAsset::class,
-        BootstrapAsset::class,
+        YiiAsset::class
     ];
 }

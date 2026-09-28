@@ -13,6 +13,9 @@ use yii\widgets\ActiveForm;
  * @var RegistrationForm $model
  * @var City[] $cities
  */
+
+$this->title = 'Регистрация';
+$this->params['mainContentClass'] = 'container--registration';
 ?>
 
 <div class="container container--registration">
